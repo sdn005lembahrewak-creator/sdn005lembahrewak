@@ -348,7 +348,7 @@
           <span class="badge-kuning">Tentang Kami</span>
           <h2>Tentang Sekolah</h2>
           <p id="berandaDeskripsi">Memuat profil sekolah...</p>
-          <a href="#profil" class="lihat-semua">Lihat profil lengkap →</a>
+          <a href="#profil" class="lihat-semua" data-tab-buka="tentang" data-tab-group-buka="profil">Lihat profil lengkap →</a>
         </div>
       </div>
       <div class="identitas-card sambutan-mini">
@@ -358,7 +358,7 @@
           <h2 style="margin-top:8px;">Sambutan Kepala Sekolah</h2>
           <p id="berandaSambutanTeks">Memuat sambutan kepala sekolah...</p>
           <div class="nama-kecil" id="berandaSambutanNama">Kepala Sekolah</div>
-          <a href="#profil" class="lihat-semua">Baca selengkapnya →</a>
+          <a href="#profil" class="lihat-semua" data-tab-buka="sambutan" data-tab-group-buka="profil">Baca selengkapnya →</a>
         </div>
       </div>
     </div>
@@ -658,6 +658,10 @@ document.addEventListener('click', function (e) {
   e.preventDefault();
   navMenu.classList.remove('terbuka');
 
+  if (tautan.dataset.tabBuka && tautan.dataset.tabGroupBuka) {
+    bukaTab(tautan.dataset.tabGroupBuka, tautan.dataset.tabBuka);
+  }
+
   if (window.location.hash === hashTujuan) {
     tampilkanHalaman();
   } else {
@@ -666,13 +670,12 @@ document.addEventListener('click', function (e) {
 });
 
 /* ---------- SISTEM TAB (dipakai di halaman Profil, Berita, Akademik) ---------- */
+function bukaTab(grup, target) {
+  document.querySelectorAll('.tab-btn[data-tab-group="' + grup + '"]').forEach(b => b.classList.toggle('aktif', b.dataset.tab === target));
+  document.querySelectorAll('.tab-panel[data-tab-group="' + grup + '"]').forEach(p => p.classList.toggle('aktif', p.dataset.tabPanel === target));
+}
 document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const grup = btn.dataset.tabGroup;
-    const target = btn.dataset.tab;
-    document.querySelectorAll('.tab-btn[data-tab-group="' + grup + '"]').forEach(b => b.classList.toggle('aktif', b === btn));
-    document.querySelectorAll('.tab-panel[data-tab-group="' + grup + '"]').forEach(p => p.classList.toggle('aktif', p.dataset.tabPanel === target));
-  });
+  btn.addEventListener('click', () => bukaTab(btn.dataset.tabGroup, btn.dataset.tab));
 });
 
 /* ---------- HELPER FETCH API ---------- */
