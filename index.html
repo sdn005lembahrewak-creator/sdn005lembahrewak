@@ -86,6 +86,19 @@
   .stat-card .angka{font-family:'Poppins',sans-serif; font-size:1.6rem; font-weight:800; color:var(--putih); display:block;}
   .stat-card .label{font-size:0.7rem; color:#DCEBFF; margin-top:2px; text-transform:uppercase; letter-spacing:0.4px;}
 
+  /* IDENTITAS SEKOLAH DI BERANDA */
+  .beranda-identitas{display:grid; gap:20px; grid-template-columns:1fr; margin-bottom:44px;}
+  .identitas-card{background:var(--putih); border-radius:var(--radius); box-shadow:var(--bayangan); padding:24px; display:flex; flex-direction:column; gap:14px;}
+  .identitas-foto{width:100%; height:180px; border-radius:14px; overflow:hidden; background:var(--biru-muda); position:relative; display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:2.4rem;}
+  .identitas-foto img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .identitas-teks h2{font-size:1.1rem; margin:2px 0 8px;}
+  .identitas-teks p{color:var(--teks-lembut); font-size:0.92rem; margin-bottom:10px; white-space:pre-line;}
+  .sambutan-mini{flex-direction:row; align-items:flex-start;}
+  .sambutan-mini .sambutan-foto-kecil{width:76px; height:76px; border-radius:50%; overflow:hidden; background:var(--biru-muda); position:relative; display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:1.5rem; font-weight:700; font-family:'Poppins',sans-serif; flex-shrink:0;}
+  .sambutan-mini .sambutan-foto-kecil img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:50%;}
+  .sambutan-mini .sambutan-isi p{display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; white-space:pre-line;}
+  .sambutan-mini .sambutan-isi .nama-kecil{font-family:'Poppins',sans-serif; font-weight:700; color:var(--biru-tua); font-size:0.9rem; margin-top:4px;}
+
   /* RINGKASAN BERANDA */
   .ringkasan-head{display:flex; justify-content:space-between; align-items:center; margin:0 0 16px;}
   .ringkasan-head h2{font-size:1.3rem;}
@@ -270,6 +283,7 @@
     .hero h1{font-size:2.3rem;}
     .hero p{font-size:1.05rem;}
     .stats-strip{grid-template-columns:repeat(4,1fr);}
+    .beranda-identitas{grid-template-columns:1fr 1fr;}
     .ringkasan-grid{grid-template-columns:repeat(3,1fr);}
     .profil-grid{grid-template-columns:1fr 1.15fr; align-items:center;}
     .sambutan-wrap{grid-template-columns:220px 1fr;}
@@ -327,6 +341,28 @@
   </div>
 
   <div class="kontainer" style="padding-top:48px;">
+    <div class="beranda-identitas">
+      <div class="identitas-card">
+        <div class="identitas-foto" id="berandaFotoSekolah">🏫</div>
+        <div class="identitas-teks">
+          <span class="badge-kuning">Tentang Kami</span>
+          <h2>Tentang Sekolah</h2>
+          <p id="berandaDeskripsi">Memuat profil sekolah...</p>
+          <a href="#profil" class="lihat-semua">Lihat profil lengkap →</a>
+        </div>
+      </div>
+      <div class="identitas-card sambutan-mini">
+        <div class="sambutan-foto-kecil" id="berandaSambutanFoto">KS</div>
+        <div class="sambutan-isi">
+          <span class="badge-kuning">Sambutan</span>
+          <h2 style="margin-top:8px;">Sambutan Kepala Sekolah</h2>
+          <p id="berandaSambutanTeks">Memuat sambutan kepala sekolah...</p>
+          <div class="nama-kecil" id="berandaSambutanNama">Kepala Sekolah</div>
+          <a href="#profil" class="lihat-semua">Baca selengkapnya →</a>
+        </div>
+      </div>
+    </div>
+
     <div class="ringkasan-head">
       <h2>📰 Berita Terbaru</h2>
       <a href="#berita" class="lihat-semua">Lihat semua →</a>
@@ -580,8 +616,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxrgb_9TFFMwT3X9QIRwASi6__xLhPSKWF6830hpdSFmjceNvVsZO6kVljJ5DvA62YG/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -770,6 +806,18 @@ function renderProfil(p) {
 
   document.getElementById('profilDeskripsi').textContent = p.deskripsi || p.sejarah || 'Informasi profil sekolah akan tampil di sini setelah diisi pada Google Sheet.';
 
+  const teksDeskripsi = p.deskripsi || p.sejarah || 'Informasi profil sekolah akan tampil di sini setelah diisi pada Google Sheet.';
+  document.getElementById('berandaDeskripsi').textContent = teksDeskripsi;
+
+  const berandaFotoWrap = document.getElementById('berandaFotoSekolah');
+  berandaFotoWrap.innerHTML = '🏫';
+  if (p.foto_sekolah) {
+    const imgBerandaFoto = document.createElement('img');
+    imgBerandaFoto.src = p.foto_sekolah; imgBerandaFoto.alt = 'Foto ' + nama;
+    imgBerandaFoto.onerror = () => imgBerandaFoto.remove();
+    berandaFotoWrap.appendChild(imgBerandaFoto);
+  }
+
   const infoData = [
     { label: 'NPSN', nilai: p.npsn },
     { label: 'Akreditasi', nilai: p.akreditasi },
@@ -792,6 +840,17 @@ function renderProfil(p) {
   }
   if (p.sambutan_kepala_sekolah) document.getElementById('sambutanTeks').textContent = p.sambutan_kepala_sekolah;
   if (p.kepala_sekolah) document.getElementById('sambutanNama').textContent = p.kepala_sekolah;
+
+  const berandaSambutanFoto = document.getElementById('berandaSambutanFoto');
+  berandaSambutanFoto.textContent = 'KS';
+  if (p.foto_kepala_sekolah) {
+    const imgKSBeranda = document.createElement('img');
+    imgKSBeranda.src = p.foto_kepala_sekolah; imgKSBeranda.alt = 'Foto Kepala Sekolah';
+    imgKSBeranda.onerror = () => imgKSBeranda.remove();
+    berandaSambutanFoto.appendChild(imgKSBeranda);
+  }
+  document.getElementById('berandaSambutanTeks').textContent = p.sambutan_kepala_sekolah || 'Sambutan kepala sekolah akan tampil di sini setelah diisi pada Google Sheet.';
+  if (p.kepala_sekolah) document.getElementById('berandaSambutanNama').textContent = p.kepala_sekolah;
 
   document.getElementById('visiTeks').textContent = p.visi || 'Visi sekolah akan tampil di sini setelah diisi pada Google Sheet.';
   const misiList = document.getElementById('misiList');
