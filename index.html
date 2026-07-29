@@ -208,6 +208,8 @@
   .modal-isi .tgl{font-size:0.78rem; color:var(--biru); font-weight:700; text-transform:uppercase;}
   .modal-isi h3{font-size:1.25rem; margin:6px 0 14px;}
   .modal-isi p{color:var(--teks-lembut); white-space:pre-line;}
+  .btn-sumber{display:inline-flex; align-items:center; gap:6px; margin-top:18px; padding:10px 18px; border-radius:20px; background:var(--biru-muda); color:var(--biru); font-weight:700; font-size:0.85rem;}
+  .btn-sumber:hover{background:#d7e7fa;}
 
   /* DOKUMEN */
   .dok-list{display:flex; flex-direction:column; gap:12px;}
@@ -329,7 +331,7 @@
     <div class="kontainer hero-isi">
       <div class="hero-logo" id="heroLogo">SD</div>
       <span class="badge-kuning">Website Resmi Sekolah</span>
-      <h1 id="heroNama">SD Negeri 006 letung</h1>
+      <h1 id="heroNama">SD Negeri 005 Lembah Rewak</h1>
       <p id="heroSlogan">Mendidik dengan hati, tumbuh bersama generasi cerdas dan berakhlak mulia.</p>
       <div class="hero-tombol">
         <a href="#profil" class="btn btn-kuning">Lihat Profil Sekolah</a>
@@ -601,6 +603,7 @@
         <button class="modal-tutup" id="modalTutupBtn">&times;</button>
       </div>
       <p id="modalTeks"></p>
+      <a id="modalSumberBtn" class="btn-sumber" href="#" target="_blank" rel="noopener" style="display:none;">🔗 Lihat Sumber Berita Asli</a>
     </div>
   </div>
 </div>
@@ -616,8 +619,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxrgb_9TFFMwT3X9QIRwASi6__xLhPSKWF6830hpdSFmjceNvVsZO6kVljJ5DvA62YG/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -1010,6 +1013,12 @@ function bukaModalBerita(b) {
   const gambarEl = document.getElementById('modalGambar');
   if (b.gambar_url) { gambarEl.src = b.gambar_url; gambarEl.style.display = 'block'; gambarEl.onerror = () => gambarEl.style.display = 'none'; }
   else { gambarEl.style.display = 'none'; }
+
+  const sumberBtn = document.getElementById('modalSumberBtn');
+  const sumberUrl = b.sumber_url || b.link_sumber || b.sumber;
+  if (sumberUrl) { sumberBtn.href = sumberUrl; sumberBtn.style.display = 'inline-flex'; }
+  else { sumberBtn.style.display = 'none'; }
+
   document.getElementById('modalBerita').classList.add('terbuka');
 }
 document.getElementById('modalTutupBtn').addEventListener('click', () => document.getElementById('modalBerita').classList.remove('terbuka'));
