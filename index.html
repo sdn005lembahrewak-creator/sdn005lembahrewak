@@ -162,8 +162,8 @@
   .kartu{background:var(--putih); border-radius:var(--radius); overflow:hidden; box-shadow:var(--bayangan); display:flex; flex-direction:column;}
   .kartu-klik{cursor:pointer; transition:transform .18s ease, box-shadow .18s ease;}
   .kartu-klik:hover{transform:translateY(-4px); box-shadow:0 14px 30px rgba(21,101,192,0.16);}
-  .kartu-gambar{width:100%; height:170px; background:linear-gradient(135deg,var(--biru-muda),#cfe1f8); display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:2rem; position:relative;}
-  .kartu-gambar img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .kartu-gambar{width:100%; height:190px; background:linear-gradient(135deg,var(--biru-muda),#cfe1f8); display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:2rem; position:relative; overflow:hidden;}
+  .kartu-gambar img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; padding:6px;}
   .kartu-isi{padding:18px; flex:1; display:flex; flex-direction:column;}
   .kartu-isi .tgl{font-size:0.75rem; color:var(--biru); font-weight:700; margin-bottom:6px; text-transform:uppercase;}
   .kartu-isi h3{font-size:1.02rem; margin-bottom:8px;}
@@ -216,7 +216,7 @@
   .modal-overlay{position:fixed; inset:0; background:rgba(10,20,35,0.75); display:none; align-items:flex-start; justify-content:center; z-index:2100; padding:40px 16px; overflow-y:auto;}
   .modal-overlay.terbuka{display:flex;}
   .modal-box{background:var(--putih); border-radius:var(--radius); max-width:660px; width:100%; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.28);}
-  .modal-gambar{width:100%; height:230px; object-fit:cover; background:var(--biru-muda);}
+  .modal-gambar{width:100%; height:280px; object-fit:contain; background:var(--biru-muda); padding:10px;}
   .modal-isi{padding:26px;}
   .modal-topbar{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
   .modal-tutup{background:none; border:none; font-size:1.7rem; cursor:pointer; color:var(--teks-lembut); line-height:1;}
