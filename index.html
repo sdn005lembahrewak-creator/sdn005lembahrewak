@@ -162,12 +162,11 @@
   .kartu{background:var(--putih); border-radius:var(--radius); overflow:hidden; box-shadow:var(--bayangan); display:flex; flex-direction:column;}
   .kartu-klik{cursor:pointer; transition:transform .18s ease, box-shadow .18s ease;}
   .kartu-klik:hover{transform:translateY(-4px); box-shadow:0 14px 30px rgba(21,101,192,0.16);}
-  .kartu-gambar{width:100%; height:230px; background:linear-gradient(135deg,var(--biru-muda),#cfe1f8); display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:2rem; position:relative; overflow:hidden;}
-  .kartu-gambar img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; padding:4px;}
+  .kartu-gambar{width:100%; aspect-ratio:3/4; background:linear-gradient(135deg,var(--biru-muda),#cfe1f8); display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:2rem; position:relative; overflow:hidden;}
+  .kartu-gambar img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; padding:6px;}
   .kartu-isi{padding:14px 16px; flex:1; display:flex; flex-direction:column;}
   .kartu-isi .tgl{font-size:0.72rem; color:var(--biru); font-weight:700; margin-bottom:4px; text-transform:uppercase;}
-  .kartu-isi h3{font-size:0.98rem; margin-bottom:4px; line-height:1.35;}
-  .kartu-isi p{color:var(--teks-lembut); font-size:0.85rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .kartu-isi h3{font-size:1rem; margin-bottom:0; line-height:1.35;}
   .kartu-isi .baca-lengkap{margin-top:8px; font-weight:700; color:var(--biru); font-size:0.83rem;}
 
   /* GURU / EKSKUL / PRESTASI */
@@ -461,7 +460,7 @@
     </div>
 
     <div class="tab-panel aktif" data-tab-panel="berita" data-tab-group="berita">
-      <div class="grid-kartu" id="beritaGrid"><div class="status-muat">Memuat berita...</div></div>
+      <div class="grid-kartu kolom-2" id="beritaGrid"><div class="status-muat">Memuat berita...</div></div>
     </div>
     <div class="tab-panel" data-tab-panel="pengumuman" data-tab-group="berita">
       <div class="peng-list" id="pengumumanList"><div class="status-muat">Memuat pengumuman...</div></div>
@@ -634,8 +633,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbw9xUesUHlgTDOtfonC8R68f5Nwn_arVHMbjcpCBXXMxy5olDxCpf4UdF0L5MUE0GOp/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -963,7 +962,7 @@ function renderWhatsApp(p) {
 function renderRingkasanBerita(list) {
   const el = document.getElementById('ringkasanBerita');
   if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Belum ada berita.</div>'; return; }
-  el.innerHTML = list.slice(0, 3).map((b, i) => kartuBeritaHtml(b, i)).join('');
+  el.innerHTML = list.slice(0, 4).map((b, i) => kartuBeritaHtml(b, i)).join('');
   tandaiReveal(el);
   pasangKlikBerita(el, list);
 }
@@ -1005,7 +1004,6 @@ function kartuBeritaHtml(b, i) {
   const gambar = b.gambar_url ? '<span>📰</span><img src="' + escapeHtml(b.gambar_url) + '" alt="' + escapeHtml(b.judul) + '" onerror="this.remove()">' : '📰';
   return '<div class="kartu kartu-klik" data-idx="' + i + '"><div class="kartu-gambar">' + gambar + '</div>' +
     '<div class="kartu-isi"><span class="tgl">' + formatTanggal(b.tanggal) + '</span><h3>' + escapeHtml(b.judul) + '</h3>' +
-    '<p>' + escapeHtml(b.ringkasan || (b.isi ? String(b.isi).slice(0, 100) + '…' : '')) + '</p>' +
     '<span class="baca-lengkap">Baca selengkapnya →</span></div></div>';
 }
 function pasangKlikBerita(el, list) {
