@@ -177,15 +177,30 @@
   .guru-kartu h3{font-size:1rem; margin-bottom:2px;}
   .guru-kartu .jabatan{color:var(--biru); font-size:0.82rem; font-weight:700; margin-bottom:4px;}
   .guru-kartu .mapel{color:var(--teks-lembut); font-size:0.82rem;}
-  .ekskul-kartu{padding:20px;}
-  .ekskul-kartu h3{font-size:1rem; margin-bottom:6px;}
-  .ekskul-kartu .jadwal{display:inline-block; background:var(--biru-muda); color:var(--biru); font-size:0.74rem; font-weight:700; padding:3px 10px; border-radius:12px; margin-bottom:8px;}
-  .ekskul-kartu p{color:var(--teks-lembut); font-size:0.88rem;}
-  .prestasi-kartu{padding:20px; display:flex; gap:14px; align-items:flex-start;}
-  .prestasi-badge{background:var(--kuning); color:#5c3d00; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0;}
-  .prestasi-kartu h3{font-size:0.96rem;}
-  .prestasi-kartu .tingkat{color:var(--biru); font-size:0.78rem; font-weight:700; margin:2px 0 6px;}
-  .prestasi-kartu p{color:var(--teks-lembut); font-size:0.86rem;}
+  .mini-slide{position:relative; width:100%; height:170px; background:linear-gradient(135deg,var(--biru-muda),#cfe1f8); overflow:hidden;}
+  .mini-slide-img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .mini-slide-kosong{width:100%; height:170px; background:linear-gradient(135deg,var(--biru-muda),#cfe1f8); display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--biru);}
+  .mini-nav{position:absolute; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.9); border:none; color:var(--biru-tua); font-size:1.05rem; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; padding:0;}
+  .mini-nav.prev{left:8px;}
+  .mini-nav.next{right:8px;}
+  .mini-dots{position:absolute; bottom:8px; left:0; right:0; display:flex; gap:5px; justify-content:center;}
+  .mini-dots span{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.65);}
+  .mini-dots span.aktif{background:var(--kuning); width:16px; border-radius:4px;}
+
+  .ekskul-kartu{padding:0;}
+  .ekskul-isi{padding:18px;}
+  .ekskul-isi h3{font-size:1rem; margin-bottom:6px;}
+  .ekskul-isi .jadwal{display:inline-block; background:var(--biru-muda); color:var(--biru); font-size:0.74rem; font-weight:700; padding:3px 10px; border-radius:12px; margin-bottom:8px;}
+  .ekskul-isi p{color:var(--teks-lembut); font-size:0.88rem; margin-bottom:6px;}
+  .ekskul-isi .pembina-baris{font-size:0.84rem; color:var(--teks-lembut);}
+  .ekskul-isi .pembina-baris strong{color:var(--biru-tua);}
+
+  .prestasi-kartu{padding:0;}
+  .prestasi-isi{padding:16px 18px; display:flex; gap:12px; align-items:flex-start;}
+  .prestasi-badge{background:var(--kuning); color:#5c3d00; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;}
+  .prestasi-isi h3{font-size:0.96rem;}
+  .prestasi-isi .tingkat{color:var(--biru); font-size:0.78rem; font-weight:700; margin:2px 0 6px;}
+  .prestasi-isi p{color:var(--teks-lembut); font-size:0.86rem;}
 
   /* GALERI */
   .galeri-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
@@ -477,7 +492,7 @@
       <div class="grid-kartu" id="ekskulGrid"><div class="status-muat">Memuat ekstrakurikuler...</div></div>
     </div>
     <div class="tab-panel" data-tab-panel="prestasi" data-tab-group="akademik">
-      <div class="grid-kartu kolom-2" id="prestasiGrid"><div class="status-muat">Memuat prestasi...</div></div>
+      <div class="grid-kartu" id="prestasiGrid"><div class="status-muat">Memuat prestasi...</div></div>
     </div>
   </div>
 </section>
@@ -619,7 +634,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxOBY6rjqkYCl0_tv1zZA3l90hTZgeJAfkpLfnt3kl2nyzRwFtdXnZbbs5HnSSIJrLV/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbw9xUesUHlgTDOtfonC8R68f5Nwn_arVHMbjcpCBXXMxy5olDxCpf4UdF0L5MUE0GOp/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -1024,6 +1039,47 @@ function bukaModalBerita(b) {
 document.getElementById('modalTutupBtn').addEventListener('click', () => document.getElementById('modalBerita').classList.remove('terbuka'));
 document.getElementById('modalBerita').addEventListener('click', e => { if (e.target.id === 'modalBerita') e.currentTarget.classList.remove('terbuka'); });
 
+/* ---------- SLIDE FOTO MINI (dipakai di kartu Ekstrakurikuler & Prestasi) ---------- */
+function htmlSlideMini(fotoList, idx, alt) {
+  if (!fotoList || !fotoList.length) return '<div class="mini-slide-kosong">🏅</div>';
+  const dots = fotoList.length > 1
+    ? '<button class="mini-nav prev" type="button" aria-label="Foto sebelumnya">‹</button>' +
+      '<button class="mini-nav next" type="button" aria-label="Foto berikutnya">›</button>' +
+      '<div class="mini-dots">' + fotoList.map((f, j) => '<span' + (j === 0 ? ' class="aktif"' : '') + '></span>').join('') + '</div>'
+    : '';
+  return '<div class="mini-slide" data-idx="' + idx + '">' +
+    '<img class="mini-slide-img" src="' + escapeHtml(fotoList[0]) + '" alt="' + escapeHtml(alt || '') + '" onerror="this.closest(\'.mini-slide\').innerHTML=\'🏅\'">' +
+    dots + '</div>';
+}
+
+function aktifkanMiniSlide(container, daftarFotoPerKartu) {
+  container.querySelectorAll('.mini-slide').forEach(wadah => {
+    const i = parseInt(wadah.dataset.idx, 10);
+    const foto = daftarFotoPerKartu[i];
+    if (!foto || foto.length < 2) return;
+
+    let posisi = 0;
+    const imgEl = wadah.querySelector('.mini-slide-img');
+    const dotEls = wadah.querySelectorAll('.mini-dots span');
+    let interval = null;
+
+    function tampilkan(idxBaru) {
+      posisi = (idxBaru + foto.length) % foto.length;
+      imgEl.src = foto[posisi];
+      dotEls.forEach((d, j) => d.classList.toggle('aktif', j === posisi));
+    }
+    function resetOtomatis() {
+      if (interval) clearInterval(interval);
+      interval = setInterval(() => tampilkan(posisi + 1), 4500);
+    }
+    const btnPrev = wadah.querySelector('.mini-nav.prev');
+    const btnNext = wadah.querySelector('.mini-nav.next');
+    if (btnPrev) btnPrev.addEventListener('click', () => { tampilkan(posisi - 1); resetOtomatis(); });
+    if (btnNext) btnNext.addEventListener('click', () => { tampilkan(posisi + 1); resetOtomatis(); });
+    resetOtomatis();
+  });
+}
+
 /* ---------- RENDER: GURU / EKSKUL / PRESTASI ---------- */
 function renderGuru(list) {
   const el = document.getElementById('guruGrid');
@@ -1040,24 +1096,38 @@ function renderGuru(list) {
 function renderEkskul(list) {
   const el = document.getElementById('ekskulGrid');
   if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Data ekstrakurikuler belum diisi.</div>'; return; }
-  el.innerHTML = list.map(k =>
-    '<div class="kartu ekskul-kartu"><h3>🏅 ' + escapeHtml(k.nama_kegiatan) + '</h3>' +
-    (k.jadwal ? '<span class="jadwal">' + escapeHtml(k.jadwal) + '</span>' : '') +
-    '<p>' + escapeHtml(k.deskripsi || '') + '</p>' +
-    (k.pembina ? '<p style="margin-top:8px;"><strong>Pembina:</strong> ' + escapeHtml(k.pembina) + '</p>' : '') + '</div>'
-  ).join('');
+
+  const daftarFoto = list.map(k => (k.galeri_foto_list && k.galeri_foto_list.length) ? k.galeri_foto_list : (k.foto_url ? [k.foto_url] : []));
+
+  el.innerHTML = list.map((k, i) => {
+    const pembinaList = (k.pembina_list && k.pembina_list.length) ? k.pembina_list : (k.pembina ? [String(k.pembina)] : []);
+    return '<div class="kartu ekskul-kartu">' + htmlSlideMini(daftarFoto[i], i, k.nama_kegiatan) +
+      '<div class="ekskul-isi"><h3>🏅 ' + escapeHtml(k.nama_kegiatan) + '</h3>' +
+      (k.jadwal ? '<span class="jadwal">' + escapeHtml(k.jadwal) + '</span>' : '') +
+      '<p>' + escapeHtml(k.deskripsi || k.keterangan || '') + '</p>' +
+      (pembinaList.length ? '<p class="pembina-baris"><strong>Pembina:</strong> ' + pembinaList.map(escapeHtml).join(', ') + '</p>' : '') +
+      '</div></div>';
+  }).join('');
+
   tandaiReveal(el);
+  aktifkanMiniSlide(el, daftarFoto);
 }
 
 function renderPrestasi(list) {
   const el = document.getElementById('prestasiGrid');
   if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Data prestasi belum diisi.</div>'; return; }
-  el.innerHTML = list.map(p =>
-    '<div class="kartu prestasi-kartu"><div class="prestasi-badge">🏆</div><div>' +
+
+  const daftarFoto = list.map(p => (p.galeri_foto_list && p.galeri_foto_list.length) ? p.galeri_foto_list : (p.foto_url ? [p.foto_url] : []));
+
+  el.innerHTML = list.map((p, i) =>
+    '<div class="kartu prestasi-kartu">' + htmlSlideMini(daftarFoto[i], i, p.judul) +
+    '<div class="prestasi-isi"><div class="prestasi-badge">🏆</div><div>' +
     '<h3>' + escapeHtml(p.judul) + '</h3><div class="tingkat">' + escapeHtml(p.tingkat || '') + (p.tahun ? ' · ' + escapeHtml(p.tahun) : '') + '</div>' +
-    '<p>' + escapeHtml(p.nama_siswa ? p.nama_siswa + ' — ' : '') + escapeHtml(p.keterangan || '') + '</p></div></div>'
+    '<p>' + escapeHtml(p.nama_siswa ? p.nama_siswa + ' — ' : '') + escapeHtml(p.keterangan || '') + '</p></div></div></div>'
   ).join('');
+
   tandaiReveal(el);
+  aktifkanMiniSlide(el, daftarFoto);
 }
 
 /* ---------- RENDER: GALERI ---------- */
