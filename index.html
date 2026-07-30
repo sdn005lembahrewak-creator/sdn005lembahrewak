@@ -42,6 +42,11 @@
   .reveal{opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s ease;}
   .reveal.tampak{opacity:1; transform:translateY(0);}
 
+  /* TOPBAR: WAKTU & CUACA */
+  .topbar{background:var(--biru-tua); color:#dbe9fc; font-size:0.74rem;}
+  .topbar-wrap{max-width:1140px; margin:0 auto; padding:6px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px 14px;}
+  .topbar-waktu, .topbar-cuaca{display:flex; align-items:center; gap:5px; white-space:nowrap;}
+
   /* NAVBAR */
   header.navbar{position:sticky; top:0; z-index:1000; background:rgba(255,255,255,0.96); backdrop-filter:blur(8px); box-shadow:0 2px 14px rgba(13,71,161,0.08);}
   .nav-wrap{display:flex; align-items:center; justify-content:space-between; max-width:1140px; margin:0 auto; padding:12px 20px;}
@@ -202,14 +207,25 @@
   .prestasi-isi p{color:var(--teks-lembut); font-size:0.86rem;}
 
   /* GALERI */
-  .galeri-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
-  .galeri-item{border-radius:12px; overflow:hidden; box-shadow:var(--bayangan); aspect-ratio:1/1; background:var(--biru-muda); cursor:pointer; position:relative; display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:1.6rem;}
-  .galeri-item img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .25s ease;}
-  .galeri-item:hover img{transform:scale(1.06);}
-  .lightbox{position:fixed; inset:0; background:rgba(10,20,35,0.88); display:none; align-items:center; justify-content:center; z-index:2000; padding:24px;}
+  .galeri-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  .album-kartu{position:relative; border-radius:14px; overflow:hidden; box-shadow:var(--bayangan); aspect-ratio:1/1; background:var(--biru-muda); cursor:pointer;}
+  .album-kartu img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s ease;}
+  .album-kartu:hover img{transform:scale(1.06);}
+  .album-overlay{position:absolute; left:0; right:0; bottom:0; padding:14px 14px 10px; background:linear-gradient(to top, rgba(13,71,161,0.88), rgba(13,71,161,0));}
+  .album-judul{display:block; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.92rem; color:var(--putih);}
+  .album-jumlah{display:block; font-size:0.72rem; color:#dbe9fc; margin-top:2px;}
+  .lightbox{position:fixed; inset:0; background:rgba(10,20,35,0.92); display:none; align-items:center; justify-content:center; z-index:2000; padding:24px;}
   .lightbox.terbuka{display:flex;}
-  .lightbox img{max-width:100%; max-height:85vh; border-radius:10px;}
-  .lightbox-tutup{position:absolute; top:18px; right:22px; color:#fff; font-size:2rem; cursor:pointer; background:none; border:none;}
+  .lightbox-isi{display:flex; flex-direction:column; align-items:center; gap:12px; max-width:100%;}
+  .lightbox-isi img{max-width:100%; max-height:78vh; border-radius:10px;}
+  .lightbox-info{color:#fff; text-align:center; font-size:0.85rem;}
+  .lightbox-info #lightboxJudul{font-weight:700; margin-right:10px; font-family:'Poppins',sans-serif;}
+  .lightbox-info #lightboxHitung{color:#b9cdea;}
+  .lightbox-tutup{position:absolute; top:18px; right:22px; color:#fff; font-size:2rem; cursor:pointer; background:none; border:none; z-index:2010;}
+  .lightbox-nav{position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.4); color:#fff; font-size:1.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2010; padding:0;}
+  .lightbox-nav:hover{background:rgba(255,255,255,0.26);}
+  .lightbox-nav.prev{left:16px;}
+  .lightbox-nav.next{right:16px;}
 
   /* MODAL BERITA */
   .modal-overlay{position:fixed; inset:0; background:rgba(10,20,35,0.75); display:none; align-items:flex-start; justify-content:center; z-index:2100; padding:40px 16px; overflow-y:auto;}
@@ -278,6 +294,9 @@
   /* FOOTER */
   footer{background:var(--biru-tua); color:#cfe0f7; padding:40px 0 20px; margin-top:20px;}
   .footer-grid{display:grid; gap:24px; grid-template-columns:1fr;}
+  .sosial-media{display:flex; gap:10px; margin-top:16px;}
+  .sosial-ikon{width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.12); color:var(--putih); display:flex; align-items:center; justify-content:center; font-size:0.95rem; font-weight:700; font-family:'Poppins',sans-serif; transition:.2s; flex-shrink:0;}
+  .sosial-ikon:hover{background:var(--kuning); color:#5c3d00;}
   footer h4{color:var(--putih); font-size:1rem; margin-bottom:12px;}
   footer p, footer a{font-size:0.88rem; color:#b9cdea;}
   .footer-bawah{text-align:center; margin-top:28px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.12); font-size:0.8rem; color:#9fb6da;}
@@ -314,6 +333,13 @@
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <div class="topbar-wrap">
+    <div class="topbar-waktu" id="topbarWaktu">🕐 Memuat waktu...</div>
+    <div class="topbar-cuaca" id="topbarCuaca">🌤️ Memuat cuaca...</div>
+  </div>
+</div>
 
 <header class="navbar">
   <div class="nav-wrap">
@@ -579,6 +605,7 @@
     <div>
       <h4 id="footerNama">SD Negeri 005 Lembah Rewak</h4>
       <p id="footerAlamat">Jl. Lembah, Desa Rewak, Kec. Jemaja, Kab. Kepulauan Anambas, Kepulauan Riau</p>
+      <div class="sosial-media" id="sosialMedia"></div>
     </div>
     <div>
       <h4>Tautan</h4>
@@ -602,7 +629,12 @@
 
 <div class="lightbox" id="lightbox">
   <button class="lightbox-tutup" id="lightboxTutup">&times;</button>
-  <img id="lightboxImg" src="" alt="Galeri sekolah">
+  <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Foto sebelumnya">‹</button>
+  <button class="lightbox-nav next" id="lightboxNext" aria-label="Foto berikutnya">›</button>
+  <div class="lightbox-isi">
+    <img id="lightboxImg" src="" alt="Galeri sekolah">
+    <div class="lightbox-info"><span id="lightboxJudul"></span><span id="lightboxHitung"></span></div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="modalBerita">
@@ -882,6 +914,9 @@ function renderProfil(p) {
   renderKontak(p);
   renderPeta(p);
   renderWhatsApp(p);
+  renderSosialMedia(p);
+  if (p.lat && p.lng) muatCuaca(p.lat, p.lng);
+  else document.getElementById('topbarCuaca').style.display = 'none';
 }
 
 /* ---------- RENDER: SLIDE FOTO HERO ---------- */
@@ -926,6 +961,53 @@ function renderSlider(list) {
   resetOtomatis();
 }
 
+/* ---------- JAM REAL-TIME (waktu Indonesia bagian Barat) ---------- */
+function perbaruiJamRealtime() {
+  const sekarang = new Date();
+  const tanggal = sekarang.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const waktu = sekarang.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  document.getElementById('topbarWaktu').textContent = '🕐 ' + tanggal + ' · ' + waktu + ' WIB';
+}
+perbaruiJamRealtime();
+setInterval(perbaruiJamRealtime, 1000);
+
+/* ---------- CUACA (Open-Meteo, gratis tanpa API key) ---------- */
+function labelCuaca(kode) {
+  if (kode === 0) return { ikon: '☀️', teks: 'Cerah' };
+  if ([1, 2, 3].indexOf(kode) !== -1) return { ikon: '⛅', teks: 'Berawan' };
+  if ([45, 48].indexOf(kode) !== -1) return { ikon: '🌫️', teks: 'Berkabut' };
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].indexOf(kode) !== -1) return { ikon: '🌧️', teks: 'Hujan' };
+  if ([71, 73, 75, 77, 85, 86].indexOf(kode) !== -1) return { ikon: '❄️', teks: 'Salju' };
+  if ([95, 96, 99].indexOf(kode) !== -1) return { ikon: '⛈️', teks: 'Badai Petir' };
+  return { ikon: '🌤️', teks: 'Cerah Berawan' };
+}
+async function muatCuaca(lat, lng) {
+  const elCuaca = document.getElementById('topbarCuaca');
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lng) + '&current_weather=true&timezone=Asia%2FJakarta');
+    const json = await res.json();
+    if (!json.current_weather) throw new Error('data cuaca tidak lengkap');
+    const info = labelCuaca(json.current_weather.weathercode);
+    elCuaca.textContent = info.ikon + ' ' + info.teks + ' · ' + Math.round(json.current_weather.temperature) + '°C';
+  } catch (err) {
+    elCuaca.style.display = 'none';
+  }
+}
+
+/* ---------- IKON MEDIA SOSIAL (FOOTER) ---------- */
+function renderSosialMedia(p) {
+  const wrap = document.getElementById('sosialMedia');
+  const daftar = [
+    { kunci: 'facebook', label: 'f', nama: 'Facebook' },
+    { kunci: 'instagram', label: 'IG', nama: 'Instagram' },
+    { kunci: 'youtube', label: '▶', nama: 'YouTube' },
+    { kunci: 'tiktok', label: '♪', nama: 'TikTok' }
+  ];
+  wrap.innerHTML = daftar.filter(d => p[d.kunci]).map(d =>
+    '<a class="sosial-ikon" href="' + escapeHtml(p[d.kunci]) + '" target="_blank" rel="noopener" aria-label="' + d.nama + '" title="' + d.nama + '">' + d.label + '</a>'
+  ).join('');
+}
+
 /* ---------- RENDER: KONTAK, PETA, WHATSAPP ---------- */
 function renderKontak(p) {
   const item = (ikon, label, nilai) => nilai ? '<div class="kontak-baris"><div class="kontak-ikon">' + ikon + '</div><div><h4>' + escapeHtml(label) + '</h4><p>' + escapeHtml(nilai) + '</p></div></div>' : '';
@@ -962,7 +1044,7 @@ function renderWhatsApp(p) {
 function renderRingkasanBerita(list) {
   const el = document.getElementById('ringkasanBerita');
   if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Belum ada berita.</div>'; return; }
-  el.innerHTML = list.slice(0, 4).map((b, i) => kartuBeritaHtml(b, i)).join('');
+  el.innerHTML = list.slice(0, 3).map((b, i) => kartuBeritaHtml(b, i)).join('');
   tandaiReveal(el);
   pasangKlikBerita(el, list);
 }
@@ -1128,25 +1210,69 @@ function renderPrestasi(list) {
   aktifkanMiniSlide(el, daftarFoto);
 }
 
-/* ---------- RENDER: GALERI ---------- */
+/* ---------- RENDER: GALERI (tampilan album per kategori + slideshow) ---------- */
+let albumFotoAktif = [];
+let albumIndexAktif = 0;
+let albumJudulAktif = '';
+
+function tampilkanFotoLightbox() {
+  document.getElementById('lightboxImg').src = albumFotoAktif[albumIndexAktif];
+  document.getElementById('lightboxJudul').textContent = albumJudulAktif;
+  document.getElementById('lightboxHitung').textContent = albumFotoAktif.length > 1 ? (albumIndexAktif + 1) + ' / ' + albumFotoAktif.length : '';
+  const tampilNav = albumFotoAktif.length > 1 ? 'flex' : 'none';
+  document.getElementById('lightboxPrev').style.display = tampilNav;
+  document.getElementById('lightboxNext').style.display = tampilNav;
+}
+
+function bukaAlbum(daftarFoto, indexAwal, judulAlbum) {
+  albumFotoAktif = daftarFoto;
+  albumIndexAktif = indexAwal || 0;
+  albumJudulAktif = judulAlbum || '';
+  tampilkanFotoLightbox();
+  document.getElementById('lightbox').classList.add('terbuka');
+}
+
+function fotoSebelumnya() { albumIndexAktif = (albumIndexAktif - 1 + albumFotoAktif.length) % albumFotoAktif.length; tampilkanFotoLightbox(); }
+function fotoBerikutnya() { albumIndexAktif = (albumIndexAktif + 1) % albumFotoAktif.length; tampilkanFotoLightbox(); }
+
+document.getElementById('lightboxPrev').addEventListener('click', e => { e.stopPropagation(); fotoSebelumnya(); });
+document.getElementById('lightboxNext').addEventListener('click', e => { e.stopPropagation(); fotoBerikutnya(); });
+document.getElementById('lightboxTutup').addEventListener('click', () => document.getElementById('lightbox').classList.remove('terbuka'));
+document.getElementById('lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') e.currentTarget.classList.remove('terbuka'); });
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('terbuka')) return;
+  if (e.key === 'ArrowLeft') fotoSebelumnya();
+  else if (e.key === 'ArrowRight') fotoBerikutnya();
+  else if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('terbuka');
+});
+
 function renderGaleri(list) {
   const el = document.getElementById('galeriGrid');
   if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Galeri belum diisi.</div>'; return; }
-  el.innerHTML = list.slice(0, 16).map(g =>
-    '<div class="galeri-item" data-src="' + escapeHtml(g.url_foto) + '" data-judul="' + escapeHtml(g.judul || '') + '">' +
-    '<span>🖼️</span><img src="' + escapeHtml(g.url_foto) + '" alt="' + escapeHtml(g.judul || 'Galeri sekolah') + '" loading="lazy" onerror="this.remove()"></div>'
+
+  const albumMap = {};
+  list.forEach(g => {
+    if (!g.url_foto) return;
+    const kategori = (g.kategori && String(g.kategori).trim()) || 'Umum';
+    if (!albumMap[kategori]) albumMap[kategori] = [];
+    albumMap[kategori].push(g.url_foto);
+  });
+  const daftarAlbum = Object.keys(albumMap).map(nama => ({ nama: nama, foto: albumMap[nama] }));
+
+  if (!daftarAlbum.length) { el.innerHTML = '<div class="status-muat">Galeri belum diisi.</div>'; return; }
+
+  el.innerHTML = daftarAlbum.map((a, i) =>
+    '<div class="album-kartu" data-idx="' + i + '">' +
+    '<img src="' + escapeHtml(a.foto[0]) + '" alt="' + escapeHtml(a.nama) + '" loading="lazy" onerror="this.closest(\'.album-kartu\').remove()">' +
+    '<div class="album-overlay"><span class="album-judul">' + escapeHtml(a.nama) + '</span><span class="album-jumlah">📷 ' + a.foto.length + ' foto</span></div></div>'
   ).join('');
+
   tandaiReveal(el);
-  document.querySelectorAll('.galeri-item').forEach(item => {
-    item.addEventListener('click', () => {
-      document.getElementById('lightboxImg').src = item.dataset.src;
-      document.getElementById('lightboxImg').alt = item.dataset.judul;
-      document.getElementById('lightbox').classList.add('terbuka');
-    });
+  el.querySelectorAll('.album-kartu').forEach(kartu => {
+    const album = daftarAlbum[parseInt(kartu.dataset.idx, 10)];
+    kartu.addEventListener('click', () => bukaAlbum(album.foto, 0, album.nama));
   });
 }
-document.getElementById('lightboxTutup').addEventListener('click', () => document.getElementById('lightbox').classList.remove('terbuka'));
-document.getElementById('lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') e.currentTarget.classList.remove('terbuka'); });
 
 /* ---------- RENDER: DOKUMEN ---------- */
 function renderDokumen(list) {
