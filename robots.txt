@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sdn005lembahrewak-creator.github.io/sdn005lembahrewak/sitemap.xml
