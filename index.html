@@ -4,9 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SD Negeri 005 Lembah Rewak</title>
-<meta name="description" content="Website resmi SD Negeri 005 Lembah Rewak, Kecamatan Jemaja, Kabupaten Kepulauan Anambas.">
+<meta name="description" content="Website resmi SD Negeri 005 Lembah Rewak, Kecamatan Jemaja, Kabupaten Kepulauan Anambas. Informasi profil sekolah, berita, guru, dan kegiatan siswa.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://sdn005lembahrewak-creator.github.io/sdn005lembahrewak/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SD Negeri 005 Lembah Rewak">
+<meta property="og:title" content="SD Negeri 005 Lembah Rewak">
+<meta property="og:description" content="Website resmi SD Negeri 005 Lembah Rewak, Kecamatan Jemaja, Kabupaten Kepulauan Anambas.">
+<meta property="og:url" content="https://sdn005lembahrewak-creator.github.io/sdn005lembahrewak/">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --biru: #1565C0;
@@ -665,8 +673,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbx_-Cuv0uo5FPYRX0gynmBmattc9GOfly6hel5KLXZwYtWCvi04CfFEECKY_jx7xiUD/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -915,8 +923,38 @@ function renderProfil(p) {
   renderPeta(p);
   renderWhatsApp(p);
   renderSosialMedia(p);
+  suntikkanDataTerstruktur(p, nama);
   if (p.lat && p.lng) muatCuaca(p.lat, p.lng);
   else document.getElementById('topbarCuaca').style.display = 'none';
+}
+
+/**
+ * Menyuntikkan data terstruktur (schema.org JSON-LD) ke <head> agar mesin
+ * pencari seperti Google lebih mudah mengenali identitas sekolah ini saat
+ * seseorang mencari hanya dengan nama sekolahnya.
+ */
+function suntikkanDataTerstruktur(p, nama) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'School',
+    'name': nama,
+    'url': window.location.href.split('#')[0]
+  };
+  if (p.deskripsi) data.description = p.deskripsi;
+  if (p.alamat) data.address = { '@type': 'PostalAddress', 'streetAddress': p.alamat, 'addressCountry': 'ID' };
+  if (p.telepon) data.telephone = p.telepon;
+  if (p.email) data.email = p.email;
+  if (p.logo) data.logo = p.logo;
+  if (p.lat && p.lng) data.geo = { '@type': 'GeoCoordinates', 'latitude': p.lat, 'longitude': p.lng };
+
+  let tag = document.getElementById('dataTerstrukturSekolah');
+  if (!tag) {
+    tag = document.createElement('script');
+    tag.type = 'application/ld+json';
+    tag.id = 'dataTerstrukturSekolah';
+    document.head.appendChild(tag);
+  }
+  tag.textContent = JSON.stringify(data);
 }
 
 /* ---------- RENDER: SLIDE FOTO HERO ---------- */
@@ -1083,7 +1121,7 @@ function renderAgenda(list) {
 
 /* ---------- RENDER: BERITA + MODAL BACA LENGKAP ---------- */
 function kartuBeritaHtml(b, i) {
-  const gambar = b.gambar_url ? '<span>📰</span><img src="' + escapeHtml(b.gambar_url) + '" alt="' + escapeHtml(b.judul) + '" onerror="this.remove()">' : '📰';
+  const gambar = b.gambar_url ? '<span>📰</span><img src="' + escapeHtml(b.gambar_url) + '" alt="' + escapeHtml(b.judul) + '" loading="lazy" onerror="this.remove()">' : '📰';
   return '<div class="kartu kartu-klik" data-idx="' + i + '"><div class="kartu-gambar">' + gambar + '</div>' +
     '<div class="kartu-isi"><span class="tgl">' + formatTanggal(b.tanggal) + '</span><h3>' + escapeHtml(b.judul) + '</h3>' +
     '<span class="baca-lengkap">Baca selengkapnya →</span></div></div>';
@@ -1166,7 +1204,7 @@ function renderGuru(list) {
   if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Data guru belum diisi.</div>'; return; }
   el.innerHTML = list.map(g => {
     const inisial = (g.nama || '?').trim().split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase();
-    const foto = g.foto_url ? '<span>' + inisial + '</span><img src="' + escapeHtml(g.foto_url) + '" alt="' + escapeHtml(g.nama) + '" onerror="this.remove()">' : inisial;
+    const foto = g.foto_url ? '<span>' + inisial + '</span><img src="' + escapeHtml(g.foto_url) + '" alt="' + escapeHtml(g.nama) + '" loading="lazy" onerror="this.remove()">' : inisial;
     return '<div class="kartu guru-kartu"><div class="guru-foto">' + foto + '</div><h3>' + escapeHtml(g.nama) + '</h3>' +
       '<div class="jabatan">' + escapeHtml(g.jabatan || '') + '</div><div class="mapel">' + escapeHtml(g.mapel || '') + '</div></div>';
   }).join('');
@@ -1376,18 +1414,14 @@ function renderPengaduanAdmin(list, token) {
 
 /* ---------- INISIALISASI ---------- */
 async function init() {
-  try {
-    const profil = await ambilData('profil');
-    renderProfil(profil);
-  } catch (err) {
-    document.getElementById('profilDeskripsi').textContent = 'Gagal memuat profil: ' + err.message;
-  }
+  const profilPromise = ambilData('profil')
+    .then(renderProfil)
+    .catch(err => { document.getElementById('profilDeskripsi').textContent = 'Gagal memuat profil: ' + err.message; });
 
-  let dataBerita = [], dataPengumuman = [];
   const tugas = [
     ['slider', renderSlider],
-    ['berita', d => { dataBerita = d; renderBerita(d); renderRingkasanBerita(d); }],
-    ['pengumuman', d => { dataPengumuman = d; renderPengumuman(d); renderRingkasanPengumuman(d); }],
+    ['berita', d => { renderBerita(d); renderRingkasanBerita(d); }],
+    ['pengumuman', d => { renderPengumuman(d); renderRingkasanPengumuman(d); }],
     ['agenda', renderAgenda],
     ['guru', renderGuru],
     ['ekstrakurikuler', renderEkskul],
@@ -1396,14 +1430,11 @@ async function init() {
     ['dokumen', renderDokumen]
   ];
 
-  for (const [action, render] of tugas) {
-    try {
-      const data = await ambilData(action);
-      render(data);
-    } catch (err) {
-      console.error('Gagal memuat ' + action, err);
-    }
-  }
+  const semuaPromise = tugas.map(([action, render]) =>
+    ambilData(action).then(render).catch(err => console.error('Gagal memuat ' + action, err))
+  );
+
+  await Promise.all([profilPromise, ...semuaPromise]);
   aktifkanRevealTerlihat();
 }
 
