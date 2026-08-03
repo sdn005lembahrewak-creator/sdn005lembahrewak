@@ -673,7 +673,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwXIYhbGQ9UtHkBeHIhUOe2A8eAEy_KonayJ7j_1a22S27W3U_FD8iagA7EEDTjIZwK/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbz0KX49heEE2Oeelc62NDqBD3FyLeg1J-uPcFi_M1FXXlefOXn-qvIRVnNeegs-Voly/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -1414,27 +1414,24 @@ function renderPengaduanAdmin(list, token) {
 
 /* ---------- INISIALISASI ---------- */
 async function init() {
-  const profilPromise = ambilData('profil')
-    .then(renderProfil)
-    .catch(err => { document.getElementById('profilDeskripsi').textContent = 'Gagal memuat profil: ' + err.message; });
-
-  const tugas = [
-    ['slider', renderSlider],
-    ['berita', d => { renderBerita(d); renderRingkasanBerita(d); }],
-    ['pengumuman', d => { renderPengumuman(d); renderRingkasanPengumuman(d); }],
-    ['agenda', renderAgenda],
-    ['guru', renderGuru],
-    ['ekstrakurikuler', renderEkskul],
-    ['prestasi', renderPrestasi],
-    ['galeri', renderGaleri],
-    ['dokumen', renderDokumen]
-  ];
-
-  const semuaPromise = tugas.map(([action, render]) =>
-    ambilData(action).then(render).catch(err => console.error('Gagal memuat ' + action, err))
-  );
-
-  await Promise.all([profilPromise, ...semuaPromise]);
+  try {
+    const semua = await ambilData('semua');
+    renderProfil(semua.profil || {});
+    renderSlider(semua.slider || []);
+    renderBerita(semua.berita || []);
+    renderRingkasanBerita(semua.berita || []);
+    renderPengumuman(semua.pengumuman || []);
+    renderRingkasanPengumuman(semua.pengumuman || []);
+    renderAgenda(semua.agenda || []);
+    renderGuru(semua.guru || []);
+    renderEkskul(semua.ekstrakurikuler || []);
+    renderPrestasi(semua.prestasi || []);
+    renderGaleri(semua.galeri || []);
+    renderDokumen(semua.dokumen || []);
+  } catch (err) {
+    document.getElementById('profilDeskripsi').textContent = 'Gagal memuat data: ' + err.message;
+    console.error('Gagal memuat data situs', err);
+  }
   aktifkanRevealTerlihat();
 }
 
