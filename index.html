@@ -249,6 +249,16 @@
   .btn-sumber{display:inline-flex; align-items:center; gap:6px; margin-top:18px; padding:10px 18px; border-radius:20px; background:var(--biru-muda); color:var(--biru); font-weight:700; font-size:0.85rem;}
   .btn-sumber:hover{background:#d7e7fa;}
 
+  /* PELAYANAN PUBLIK */
+  .layanan-list{display:flex; flex-direction:column; gap:12px;}
+  .layanan-item{background:var(--putih); border-radius:12px; padding:16px 18px; box-shadow:var(--bayangan); border-left:4px solid var(--biru);}
+  .layanan-item strong{display:block; color:var(--biru-tua); font-family:'Poppins',sans-serif; font-size:0.92rem; margin-bottom:4px;}
+  .layanan-item span{color:var(--teks-lembut); font-size:0.9rem; word-break:break-word;}
+  .maklumat-box{background:var(--putih); border-radius:var(--radius); padding:32px 28px; box-shadow:var(--bayangan); border-top:4px solid var(--kuning); text-align:center; max-width:640px; margin:0 auto;}
+  .maklumat-box p{font-size:1.05rem; color:var(--biru-tua); font-family:'Poppins',sans-serif; font-weight:600; line-height:1.7; white-space:pre-line;}
+  .cta-pengaduan{background:var(--putih); border-radius:var(--radius); padding:30px 26px; box-shadow:var(--bayangan); border-left:4px solid var(--biru); text-align:center; max-width:640px; margin:0 auto;}
+  .cta-pengaduan p{color:var(--teks-lembut); font-size:0.96rem; white-space:pre-line;}
+
   /* DOKUMEN */
   .dok-list{display:flex; flex-direction:column; gap:12px;}
   .dok-item{background:var(--putih); border-radius:12px; padding:16px 18px; box-shadow:var(--bayangan); display:flex; align-items:center; gap:14px; justify-content:space-between; flex-wrap:wrap;}
@@ -365,7 +375,7 @@
       <li><a href="#berita">Berita &amp; Info</a></li>
       <li><a href="#akademik">Akademik</a></li>
       <li><a href="#galeri">Galeri</a></li>
-      <li><a href="#dokumen">Dokumen</a></li>
+      <li><a href="#pelayanan-publik">Pelayanan Publik</a></li>
       <li><a href="#pengaduan">Pengaduan</a></li>
       <li><a href="#kontak">Kontak</a></li>
     </ul>
@@ -541,12 +551,52 @@
 </section>
 
 <!-- ======================= DOKUMEN ======================= -->
-<section class="page seksi" id="dokumen">
+<section class="page seksi" id="pelayanan-publik">
   <div class="kontainer">
-    <span class="badge-kuning badge-tengah">Berkas Resmi</span>
-    <h2 class="seksi-judul">Dokumen Sekolah</h2>
-    <p class="seksi-sub">Unduh dokumen dan berkas resmi sekolah</p>
-    <div class="dok-list" id="dokumenList"><div class="status-muat">Memuat dokumen...</div></div>
+    <span class="badge-kuning badge-tengah">Transparansi Layanan</span>
+    <h2 class="seksi-judul">Pelayanan Publik</h2>
+    <p class="seksi-sub">Standar, maklumat, dan informasi pelayanan sekolah kepada masyarakat</p>
+
+    <div class="tab-bar" data-tab-group="layanan">
+      <button class="tab-btn aktif" data-tab="standar" data-tab-group="layanan">Standar Pelayanan</button>
+      <button class="tab-btn" data-tab="maklumat" data-tab-group="layanan">Maklumat Pelayanan</button>
+      <button class="tab-btn" data-tab="sipp" data-tab-group="layanan">Info Pelayanan (SIPP)</button>
+      <button class="tab-btn" data-tab="sarana" data-tab-group="layanan">Sarana &amp; Prasarana</button>
+      <button class="tab-btn" data-tab="khusus" data-tab-group="layanan">Pelayanan Khusus</button>
+      <button class="tab-btn" data-tab="pengaduan-info" data-tab-group="layanan">Pengelolaan Pengaduan</button>
+      <button class="tab-btn" data-tab="dokumen" data-tab-group="layanan">Dokumen</button>
+    </div>
+
+    <div class="tab-panel aktif" data-tab-panel="standar" data-tab-group="layanan">
+      <div id="standarPelayananList"><div class="status-muat">Memuat standar pelayanan...</div></div>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="maklumat" data-tab-group="layanan">
+      <div class="maklumat-box"><p id="maklumatTeks">Memuat maklumat pelayanan...</p></div>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="sipp" data-tab-group="layanan">
+      <div id="sippList"><div class="status-muat">Memuat informasi pelayanan...</div></div>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="sarana" data-tab-group="layanan">
+      <div id="saranaPrasaranaList"><div class="status-muat">Memuat sarana &amp; prasarana...</div></div>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="khusus" data-tab-group="layanan">
+      <div id="pelayananKhususList"><div class="status-muat">Memuat pelayanan khusus...</div></div>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="pengaduan-info" data-tab-group="layanan">
+      <div class="cta-pengaduan">
+        <p id="pengaduanInfoTeks">Memuat informasi pengelolaan pengaduan...</p>
+        <a href="#pengaduan" class="btn btn-kuning" style="margin-top:16px;">Sampaikan Pengaduan →</a>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="dokumen" data-tab-group="layanan">
+      <div class="dok-list" id="dokumenList"><div class="status-muat">Memuat dokumen...</div></div>
+    </div>
   </div>
 </section>
 
@@ -620,7 +670,7 @@
       <p><a href="#profil">Profil Sekolah</a></p>
       <p><a href="#berita">Berita &amp; Info</a></p>
       <p><a href="#akademik">Akademik</a></p>
-      <p><a href="#dokumen">Dokumen</a></p>
+      <p><a href="#pelayanan-publik">Pelayanan Publik</a></p>
       <p><a href="#pengaduan">Pengaduan</a></p>
     </div>
     <div>
@@ -673,8 +723,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxAVA_-4mw35YGOWsQxgDs9LV-hj3x11Anx3zidmjrRvny8GC3gJVGMlas03GPO4OuI/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -736,20 +786,46 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 /* ---------- HELPER FETCH API ---------- */
+/**
+ * Melakukan fetch dengan batas waktu (timeout) supaya website tidak
+ * "menggantung" tanpa batas kalau server lambat merespons.
+ */
+async function fetchDenganTimeout(url, opsi, batasWaktuMs) {
+  const kontrol = new AbortController();
+  const timer = setTimeout(() => kontrol.abort(), batasWaktuMs || 15000);
+  try {
+    return await fetch(url, Object.assign({}, opsi, { signal: kontrol.signal }));
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function ambilData(action, paramTambahan) {
   let url = CONFIG.API_URL + '?action=' + encodeURIComponent(action);
   if (paramTambahan) {
     Object.keys(paramTambahan).forEach(k => { url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(paramTambahan[k]); });
   }
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Gagal menghubungi server (status ' + res.status + ')');
-  const json = await res.json();
-  if (!json.sukses) throw new Error(json.error || 'Terjadi kesalahan pada data');
-  return json.data;
+
+  // Coba maksimal 2 kali: kalau percobaan pertama gagal (server sedang
+  // lambat/sibuk), otomatis dicoba sekali lagi sebelum benar-benar gagal.
+  let errorTerakhir;
+  for (let percobaan = 1; percobaan <= 2; percobaan++) {
+    try {
+      const res = await fetchDenganTimeout(url, {}, 15000);
+      if (!res.ok) throw new Error('Gagal menghubungi server (status ' + res.status + ')');
+      const json = await res.json();
+      if (!json.sukses) throw new Error(json.error || 'Terjadi kesalahan pada data');
+      return json.data;
+    } catch (err) {
+      errorTerakhir = err;
+      if (percobaan === 1) await new Promise(r => setTimeout(r, 800));
+    }
+  }
+  throw errorTerakhir;
 }
 
 async function kirimData(dataObj) {
-  const res = await fetch(CONFIG.API_URL, { method: 'POST', body: new URLSearchParams(dataObj) });
+  const res = await fetchDenganTimeout(CONFIG.API_URL, { method: 'POST', body: new URLSearchParams(dataObj) }, 15000);
   if (!res.ok) throw new Error('Gagal menghubungi server (status ' + res.status + ')');
   const json = await res.json();
   if (!json.sukses) throw new Error(json.error || 'Terjadi kesalahan pada data');
@@ -923,9 +999,47 @@ function renderProfil(p) {
   renderPeta(p);
   renderWhatsApp(p);
   renderSosialMedia(p);
+  renderPelayananPublik(p);
   suntikkanDataTerstruktur(p, nama);
   if (p.lat && p.lng) muatCuaca(p.lat, p.lng);
   else document.getElementById('topbarCuaca').style.display = 'none';
+}
+
+/** === PELAYANAN PUBLIK (Standar, Maklumat, SIPP, Sarana, Khusus, Pengaduan) === */
+function bangunDaftarLayanan(list) {
+  if (!Array.isArray(list) || !list.length) {
+    return '<div class="status-muat">Informasi belum diisi pada Google Sheet.</div>';
+  }
+  return '<div class="layanan-list">' + list.map(item => {
+    const idx = item.indexOf(':');
+    if (idx > -1) {
+      const label = item.slice(0, idx).trim();
+      const isi = item.slice(idx + 1).trim();
+      return '<div class="layanan-item"><strong>' + escapeHtml(label) + '</strong><span>' + escapeHtml(isi) + '</span></div>';
+    }
+    return '<div class="layanan-item"><span>' + escapeHtml(item) + '</span></div>';
+  }).join('') + '</div>';
+}
+
+function renderPelayananPublik(p) {
+  document.getElementById('standarPelayananList').innerHTML = bangunDaftarLayanan(p.standar_pelayanan);
+  document.getElementById('maklumatTeks').textContent = p.maklumat_pelayanan || 'Maklumat pelayanan akan tampil di sini setelah diisi pada Google Sheet.';
+  document.getElementById('saranaPrasaranaList').innerHTML = bangunDaftarLayanan(p.sarana_prasarana);
+  document.getElementById('pelayananKhususList').innerHTML = bangunDaftarLayanan(p.pelayanan_khusus);
+  document.getElementById('pengaduanInfoTeks').textContent = p.pengelolaan_pengaduan ||
+    'Pengaduan, kritik, dan saran dapat disampaikan melalui formulir pengaduan online pada menu Pengaduan, WhatsApp sekolah, atau kotak saran yang tersedia di lingkungan sekolah.';
+
+  // SIPP disusun otomatis dari kanal informasi yang sudah tersedia di website ini
+  const kanal = [{ label: 'Website Resmi Sekolah', nilai: window.location.origin + window.location.pathname }];
+  if (p.whatsapp) kanal.push({ label: 'WhatsApp', nilai: p.whatsapp });
+  if (p.facebook) kanal.push({ label: 'Facebook', nilai: p.facebook });
+  if (p.instagram) kanal.push({ label: 'Instagram', nilai: p.instagram });
+  if (p.youtube) kanal.push({ label: 'YouTube', nilai: p.youtube });
+  if (p.tiktok) kanal.push({ label: 'TikTok', nilai: p.tiktok });
+  kanal.push({ label: 'Papan Informasi Sekolah', nilai: 'Tersedia langsung di lingkungan sekolah' });
+  document.getElementById('sippList').innerHTML = '<div class="layanan-list">' + kanal.map(k =>
+    '<div class="layanan-item"><strong>' + escapeHtml(k.label) + '</strong><span>' + escapeHtml(k.nilai) + '</span></div>'
+  ).join('') + '</div>';
 }
 
 /**
