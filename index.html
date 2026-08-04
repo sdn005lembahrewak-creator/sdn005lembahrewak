@@ -256,7 +256,27 @@
   .layanan-item span{color:var(--teks-lembut); font-size:0.9rem; word-break:break-word;}
   .maklumat-box{background:var(--putih); border-radius:var(--radius); padding:32px 28px; box-shadow:var(--bayangan); border-top:4px solid var(--kuning); text-align:center; max-width:640px; margin:0 auto;}
   .maklumat-box p{font-size:1.05rem; color:var(--biru-tua); font-family:'Poppins',sans-serif; font-weight:600; line-height:1.7; white-space:pre-line;}
-  .sipp-banner-judul{font-size:0.95rem; margin:24px 0 14px; color:var(--biru-tua); font-family:'Poppins',sans-serif; font-weight:700;}
+  /* JENIS LAYANAN */
+  .grid-layanan{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  .layanan-kartu{background:var(--putih); border-radius:14px; overflow:hidden; box-shadow:var(--bayangan); display:flex; flex-direction:column;}
+  .layanan-kartu-gambar{width:100%; aspect-ratio:3/4; background:linear-gradient(135deg,var(--biru-muda),#cfe1f8); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; color:var(--biru); font-size:1.6rem;}
+  .layanan-kartu-gambar img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .layanan-kartu-isi{padding:11px 12px 13px; flex:1; display:flex; flex-direction:column;}
+  .layanan-kartu-isi h3{font-size:0.82rem; line-height:1.35; margin-bottom:8px; flex:1; font-weight:600;}
+  .btn-detail{align-self:flex-start; background:var(--biru-muda); color:var(--biru); font-size:0.74rem; font-weight:700; padding:6px 12px; border-radius:16px; border:none; cursor:pointer; font-family:'Poppins',sans-serif;}
+  .btn-detail:hover{background:var(--biru); color:var(--putih);}
+
+  /* MODAL DETAIL LAYANAN */
+  .modal-layanan-box{max-width:600px;}
+  .layanan-detail-baris{margin-bottom:16px;}
+  .layanan-detail-baris h4{font-size:0.78rem; text-transform:uppercase; letter-spacing:0.4px; color:var(--biru); margin-bottom:6px; font-family:'Poppins',sans-serif;}
+  .layanan-detail-baris p{color:var(--teks-lembut); font-size:0.92rem; white-space:pre-line;}
+  .layanan-detail-baris ul{padding-left:18px; color:var(--teks-lembut); font-size:0.92rem;}
+  .layanan-detail-baris ul li{margin-bottom:4px;}
+  .modal-layanan-tombol{display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; padding-top:18px; border-top:1px solid #eef2f6;}
+  .modal-layanan-tombol a{flex:1; min-width:150px; text-align:center; padding:11px 16px; border-radius:24px; font-weight:700; font-size:0.86rem;}
+  .btn-ajukan{background:var(--biru); color:var(--putih);}
+  .btn-unduh-layanan{background:var(--biru-muda); color:var(--biru);}
 
   /* DOKUMEN */
   .dok-list{display:flex; flex-direction:column; gap:12px;}
@@ -342,6 +362,7 @@
     .vm-grid{grid-template-columns:1fr 1fr;}
     .grid-kartu{grid-template-columns:repeat(3,1fr);}
     .grid-kartu.kolom-2{grid-template-columns:repeat(2,1fr);}
+    .grid-layanan{grid-template-columns:repeat(5,1fr);}
     .galeri-grid{grid-template-columns:repeat(4,1fr);}
     .kontak-grid{grid-template-columns:1fr 1fr;}
     .footer-grid{grid-template-columns:2fr 1fr 1fr;}
@@ -553,29 +574,28 @@
   <div class="kontainer">
     <span class="badge-kuning badge-tengah">Transparansi Layanan</span>
     <h2 class="seksi-judul">Pelayanan Publik</h2>
-    <p class="seksi-sub">Standar, maklumat, dan informasi pelayanan sekolah kepada masyarakat</p>
+    <p class="seksi-sub">Jenis layanan, standar, maklumat, dan informasi pelayanan sekolah kepada masyarakat</p>
 
     <div class="tab-bar" data-tab-group="layanan">
-      <button class="tab-btn aktif" data-tab="standar" data-tab-group="layanan">Standar Pelayanan</button>
+      <button class="tab-btn aktif" data-tab="jenis" data-tab-group="layanan">Jenis Layanan</button>
+      <button class="tab-btn" data-tab="standar" data-tab-group="layanan">Standar Pelayanan</button>
       <button class="tab-btn" data-tab="maklumat" data-tab-group="layanan">Maklumat Pelayanan</button>
-      <button class="tab-btn" data-tab="sipp" data-tab-group="layanan">Info Pelayanan (SIPP)</button>
       <button class="tab-btn" data-tab="sarana" data-tab-group="layanan">Sarana &amp; Prasarana</button>
       <button class="tab-btn" data-tab="khusus" data-tab-group="layanan">Pelayanan Khusus</button>
-      <button class="tab-btn" data-tab="pengaduan-info" data-tab-group="layanan">Pengelolaan Pengaduan</button>
+      <button class="tab-btn" data-tab="pengaduan-info" data-tab-group="layanan">Pengaduan</button>
       <button class="tab-btn" data-tab="dokumen" data-tab-group="layanan">Dokumen</button>
     </div>
 
-    <div class="tab-panel aktif" data-tab-panel="standar" data-tab-group="layanan">
+    <div class="tab-panel aktif" data-tab-panel="jenis" data-tab-group="layanan">
+      <div class="grid-layanan" id="jenisLayananGrid"><div class="status-muat">Memuat jenis layanan...</div></div>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="standar" data-tab-group="layanan">
       <div id="standarPelayananList"><div class="status-muat">Memuat standar pelayanan...</div></div>
     </div>
 
     <div class="tab-panel" data-tab-panel="maklumat" data-tab-group="layanan">
       <div class="maklumat-box"><p id="maklumatTeks">Memuat maklumat pelayanan...</p></div>
-    </div>
-
-    <div class="tab-panel" data-tab-panel="sipp" data-tab-group="layanan">
-      <div id="sippList"><div class="status-muat">Memuat informasi pelayanan...</div></div>
-      <div id="sippBannerWrap"></div>
     </div>
 
     <div class="tab-panel" data-tab-panel="sarana" data-tab-group="layanan">
@@ -609,6 +629,20 @@
     </div>
   </div>
 </section>
+
+<div class="modal-overlay" id="modalLayanan">
+  <div class="modal-box modal-layanan-box">
+    <img class="modal-gambar" id="modalLayananGambar" src="" alt="" style="display:none;">
+    <div class="modal-isi">
+      <div class="modal-topbar">
+        <div><h3 id="modalLayananJudul"></h3></div>
+        <button class="modal-tutup" id="modalLayananTutupBtn">&times;</button>
+      </div>
+      <div id="modalLayananIsi"></div>
+      <div class="modal-layanan-tombol" id="modalLayananTombol"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ======================= KONTAK ======================= -->
 <section class="page seksi" id="kontak" style="background:var(--putih);">
@@ -710,7 +744,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwicSyfXzzAHVNV_yIPmeH_2D_jESSNKOlb6LI0p5Pyit9_6s5Ma3JqDfPE-6F_1Jrj/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbwyYakVqMEW28cJZaVySNUdDWdbEZGkVBbLQ5IdJ8ymKXYkzJZmlkmJlAN-lEuYFnOO/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -1018,40 +1052,65 @@ function renderPelayananPublik(p) {
   document.getElementById('pelayananKhususList').innerHTML = bangunDaftarLayanan(p.pelayanan_khusus);
   document.getElementById('pengaduanInfoTeks').textContent = p.pengelolaan_pengaduan ||
     'Pengaduan, kritik, dan saran dapat disampaikan melalui formulir di bawah ini, WhatsApp sekolah, atau kotak saran yang tersedia di lingkungan sekolah.';
-
-  // SIPP disusun otomatis dari kanal informasi yang sudah tersedia di website ini
-  const kanal = [{ label: 'Website Resmi Sekolah', nilai: window.location.origin + window.location.pathname }];
-  if (p.whatsapp) kanal.push({ label: 'WhatsApp', nilai: p.whatsapp });
-  if (p.facebook) kanal.push({ label: 'Facebook', nilai: p.facebook });
-  if (p.instagram) kanal.push({ label: 'Instagram', nilai: p.instagram });
-  if (p.youtube) kanal.push({ label: 'YouTube', nilai: p.youtube });
-  if (p.tiktok) kanal.push({ label: 'TikTok', nilai: p.tiktok });
-  kanal.push({ label: 'Papan Informasi Sekolah', nilai: 'Tersedia langsung di lingkungan sekolah' });
-  document.getElementById('sippList').innerHTML = '<div class="layanan-list">' + kanal.map(k =>
-    '<div class="layanan-item"><strong>' + escapeHtml(k.label) + '</strong><span>' + escapeHtml(k.nilai) + '</span></div>'
-  ).join('') + '</div>';
 }
 
-/**
- * Menampilkan kartu foto publikasi/banner informasi resmi (misalnya poster
- * hasil survei kepuasan masyarakat, infografis, dsb) di tab Info Pelayanan.
- * Sumber fotonya sama dengan sheet "galeri" — cukup isi kolom kategori
- * dengan kata yang mengandung "publikasi" (contoh: "Publikasi Informasi")
- * agar foto tersebut otomatis muncul di sini, tanpa perlu sheet baru.
- */
-function renderPublikasiBanner(galeriList) {
-  const wrap = document.getElementById('sippBannerWrap');
-  const fotoPublikasi = (galeriList || []).filter(g => g.url_foto && g.kategori && String(g.kategori).toLowerCase().indexOf('publikasi') !== -1);
-  if (!fotoPublikasi.length) { wrap.innerHTML = ''; return; }
+/* ---------- JENIS LAYANAN (kartu + halaman detail) ---------- */
+function renderJenisLayanan(list) {
+  const el = document.getElementById('jenisLayananGrid');
+  if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Jenis layanan belum diisi pada Google Sheet.</div>'; return; }
 
-  wrap.innerHTML = '<div class="sipp-banner-judul">📌 Publikasi Informasi</div>' +
-    '<div class="grid-kartu kolom-2">' + fotoPublikasi.map(g =>
-      '<div class="kartu"><div class="kartu-gambar"><img src="' + escapeHtml(g.url_foto) + '" alt="' + escapeHtml(g.judul || 'Publikasi informasi') + '" loading="lazy" onerror="this.closest(\'.kartu\').remove()"></div>' +
-      (g.judul ? '<div class="kartu-isi"><h3 style="font-size:0.92rem;">' + escapeHtml(g.judul) + '</h3></div>' : '') +
-      '</div>'
-    ).join('') + '</div>';
-  tandaiReveal(wrap.querySelector('.grid-kartu'));
+  el.innerHTML = list.map((l, i) => {
+    const gambar = l.foto_url
+      ? '<img src="' + escapeHtml(l.foto_url) + '" alt="' + escapeHtml(l.nama_layanan) + '" loading="lazy" onerror="this.remove()">'
+      : '📄';
+    return '<div class="layanan-kartu"><div class="layanan-kartu-gambar">' + gambar + '</div>' +
+      '<div class="layanan-kartu-isi"><h3>' + escapeHtml(l.nama_layanan) + '</h3>' +
+      '<button class="btn-detail" data-idx="' + i + '" type="button">Lihat Detail</button></div></div>';
+  }).join('');
+
+  tandaiReveal(el);
+  el.querySelectorAll('.btn-detail').forEach(btn => {
+    btn.addEventListener('click', () => bukaModalLayanan(list[parseInt(btn.dataset.idx, 10)]));
+  });
 }
+
+function barisDetailLayanan(judul, isi) {
+  if (!isi || (Array.isArray(isi) && !isi.length)) return '';
+  const kontenHtml = Array.isArray(isi)
+    ? '<ul>' + isi.map(s => '<li>' + escapeHtml(s) + '</li>').join('') + '</ul>'
+    : '<p>' + escapeHtml(isi) + '</p>';
+  return '<div class="layanan-detail-baris"><h4>' + escapeHtml(judul) + '</h4>' + kontenHtml + '</div>';
+}
+
+function bukaModalLayanan(l) {
+  document.getElementById('modalLayananJudul').textContent = l.nama_layanan || '';
+
+  const gambarEl = document.getElementById('modalLayananGambar');
+  if (l.foto_url) { gambarEl.src = l.foto_url; gambarEl.style.display = 'block'; gambarEl.onerror = () => gambarEl.style.display = 'none'; }
+  else { gambarEl.style.display = 'none'; }
+
+  document.getElementById('modalLayananIsi').innerHTML =
+    barisDetailLayanan('Deskripsi Layanan', l.deskripsi) +
+    barisDetailLayanan('Persyaratan', l.persyaratan_list) +
+    barisDetailLayanan('Prosedur Pelayanan', l.prosedur_list) +
+    barisDetailLayanan('Jangka Waktu', l.jangka_waktu) +
+    barisDetailLayanan('Biaya/Tarif', l.biaya) +
+    barisDetailLayanan('Produk Layanan', l.produk_layanan_list) +
+    barisDetailLayanan('Dasar Hukum', l.dasar_hukum) +
+    barisDetailLayanan('Petugas Pelayanan', l.petugas) +
+    barisDetailLayanan('Formulir', l.formulir);
+
+  const tombolWrap = document.getElementById('modalLayananTombol');
+  let tombolHtml = '';
+  if (l.ajukan_url) tombolHtml += '<a class="btn-ajukan" href="' + escapeHtml(l.ajukan_url) + '" target="_blank" rel="noopener">Ajukan Layanan</a>';
+  if (l.dokumen_url) tombolHtml += '<a class="btn-unduh-layanan" href="' + escapeHtml(l.dokumen_url) + '" target="_blank" rel="noopener">Unduh Dokumen</a>';
+  tombolWrap.innerHTML = tombolHtml;
+  tombolWrap.style.display = tombolHtml ? 'flex' : 'none';
+
+  document.getElementById('modalLayanan').classList.add('terbuka');
+}
+document.getElementById('modalLayananTutupBtn').addEventListener('click', () => document.getElementById('modalLayanan').classList.remove('terbuka'));
+document.getElementById('modalLayanan').addEventListener('click', e => { if (e.target.id === 'modalLayanan') e.currentTarget.classList.remove('terbuka'); });
 
 /**
  * Menyuntikkan data terstruktur (schema.org JSON-LD) ke <head> agar mesin
@@ -1552,7 +1611,7 @@ async function init() {
     renderEkskul(semua.ekstrakurikuler || []);
     renderPrestasi(semua.prestasi || []);
     renderGaleri(semua.galeri || []);
-    renderPublikasiBanner(semua.galeri || []);
+    renderJenisLayanan(semua.layanan || []);
     renderDokumen(semua.dokumen || []);
   } catch (err) {
     document.getElementById('profilDeskripsi').textContent = 'Gagal memuat data: ' + err.message;
