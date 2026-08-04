@@ -923,7 +923,10 @@ function renderStats(p) {
 }
 
 /* ---------- RENDER: PROFIL SEKOLAH ---------- */
+let profilAktif = {};
+
 function renderProfil(p) {
+  profilAktif = p || {};
   const nama = p.nama_sekolah || 'SD Negeri 005 Lembah Rewak';
   document.title = nama;
   document.getElementById('namaSekolahNav').textContent = nama;
@@ -1082,6 +1085,17 @@ function barisDetailLayanan(judul, isi) {
   return '<div class="layanan-detail-baris"><h4>' + escapeHtml(judul) + '</h4>' + kontenHtml + '</div>';
 }
 
+function bagianPengaduanLayanan(p) {
+  const emailPengaduan = p.email_pengaduan || p.email;
+  const baris = [];
+  if (p.alamat) baris.push('<p>📍 ' + escapeHtml(p.alamat) + '</p>');
+  if (emailPengaduan) {
+    baris.push('<p>✉️ <a href="mailto:' + escapeHtml(emailPengaduan) + '" style="color:var(--biru); font-weight:700;">' + escapeHtml(emailPengaduan) + '</a></p>');
+  }
+  baris.push('<p>🔗 <a href="https://www.lapor.go.id/" target="_blank" rel="noopener" style="color:var(--biru); font-weight:700;">lapor.go.id</a></p>');
+  return '<div class="layanan-detail-baris"><h4>Pengaduan, Saran dan Masukan</h4>' + baris.join('') + '</div>';
+}
+
 function bukaModalLayanan(l) {
   document.getElementById('modalLayananJudul').textContent = l.nama_layanan || '';
 
@@ -1096,16 +1110,15 @@ function bukaModalLayanan(l) {
     barisDetailLayanan('Jangka Waktu', l.jangka_waktu) +
     barisDetailLayanan('Biaya/Tarif', l.biaya) +
     barisDetailLayanan('Produk Layanan', l.produk_layanan_list) +
-    barisDetailLayanan('Dasar Hukum', l.dasar_hukum) +
-    barisDetailLayanan('Petugas Pelayanan', l.petugas) +
-    barisDetailLayanan('Formulir', l.formulir);
+    bagianPengaduanLayanan(profilAktif);
 
   const tombolWrap = document.getElementById('modalLayananTombol');
-  let tombolHtml = '';
-  if (l.ajukan_url) tombolHtml += '<a class="btn-ajukan" href="' + escapeHtml(l.ajukan_url) + '" target="_blank" rel="noopener">Ajukan Layanan</a>';
-  if (l.dokumen_url) tombolHtml += '<a class="btn-unduh-layanan" href="' + escapeHtml(l.dokumen_url) + '" target="_blank" rel="noopener">Unduh Dokumen</a>';
-  tombolWrap.innerHTML = tombolHtml;
-  tombolWrap.style.display = tombolHtml ? 'flex' : 'none';
+  let urlFormPengaduan = '';
+  if (CONFIG.FORM_EMBED_URL && CONFIG.FORM_EMBED_URL.indexOf('GANTI_DENGAN') === -1) {
+    urlFormPengaduan = CONFIG.FORM_EMBED_URL.replace('?embedded=true', '');
+  }
+  tombolWrap.innerHTML = urlFormPengaduan ? '<a class="btn-ajukan" href="' + escapeHtml(urlFormPengaduan) + '" target="_blank" rel="noopener">Pengaduan</a>' : '';
+  tombolWrap.style.display = urlFormPengaduan ? 'flex' : 'none';
 
   document.getElementById('modalLayanan').classList.add('terbuka');
 }
