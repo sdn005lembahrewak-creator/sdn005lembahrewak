@@ -256,8 +256,7 @@
   .layanan-item span{color:var(--teks-lembut); font-size:0.9rem; word-break:break-word;}
   .maklumat-box{background:var(--putih); border-radius:var(--radius); padding:32px 28px; box-shadow:var(--bayangan); border-top:4px solid var(--kuning); text-align:center; max-width:640px; margin:0 auto;}
   .maklumat-box p{font-size:1.05rem; color:var(--biru-tua); font-family:'Poppins',sans-serif; font-weight:600; line-height:1.7; white-space:pre-line;}
-  .cta-pengaduan{background:var(--putih); border-radius:var(--radius); padding:30px 26px; box-shadow:var(--bayangan); border-left:4px solid var(--biru); text-align:center; max-width:640px; margin:0 auto;}
-  .cta-pengaduan p{color:var(--teks-lembut); font-size:0.96rem; white-space:pre-line;}
+  .sipp-banner-judul{font-size:0.95rem; margin:24px 0 14px; color:var(--biru-tua); font-family:'Poppins',sans-serif; font-weight:700;}
 
   /* DOKUMEN */
   .dok-list{display:flex; flex-direction:column; gap:12px;}
@@ -376,7 +375,6 @@
       <li><a href="#akademik">Akademik</a></li>
       <li><a href="#galeri">Galeri</a></li>
       <li><a href="#pelayanan-publik">Pelayanan Publik</a></li>
-      <li><a href="#pengaduan">Pengaduan</a></li>
       <li><a href="#kontak">Kontak</a></li>
     </ul>
   </div>
@@ -577,6 +575,7 @@
 
     <div class="tab-panel" data-tab-panel="sipp" data-tab-group="layanan">
       <div id="sippList"><div class="status-muat">Memuat informasi pelayanan...</div></div>
+      <div id="sippBannerWrap"></div>
     </div>
 
     <div class="tab-panel" data-tab-panel="sarana" data-tab-group="layanan">
@@ -588,37 +587,25 @@
     </div>
 
     <div class="tab-panel" data-tab-panel="pengaduan-info" data-tab-group="layanan">
-      <div class="cta-pengaduan">
-        <p id="pengaduanInfoTeks">Memuat informasi pengelolaan pengaduan...</p>
-        <a href="#pengaduan" class="btn btn-kuning" style="margin-top:16px;">Sampaikan Pengaduan →</a>
+      <div class="pengaduan-wrap">
+        <div class="pengaduan-info">
+          <h3>📋 Cara Menyampaikan Pengaduan</h3>
+          <ol>
+            <li>Isi formulir di samping/bawah ini dengan data dan keluhan/masukan Anda.</li>
+            <li>Pengaduan akan otomatis masuk ke sistem sekolah melalui Google Form.</li>
+            <li>Pihak sekolah akan menindaklanjuti pengaduan Anda melalui kontak yang tercantum.</li>
+            <li>Untuk hal mendesak, silakan hubungi sekolah langsung melalui tombol WhatsApp.</li>
+          </ol>
+          <p id="pengaduanInfoTeks" style="margin-top:14px; color:var(--teks-lembut); font-size:0.88rem;"></p>
+        </div>
+        <div class="form-embed-wrap" id="formEmbedWrap">
+          <div class="form-belum-siap">Formulir pengaduan belum tersedia. Silakan hubungi pengelola website.</div>
+        </div>
       </div>
     </div>
 
     <div class="tab-panel" data-tab-panel="dokumen" data-tab-group="layanan">
       <div class="dok-list" id="dokumenList"><div class="status-muat">Memuat dokumen...</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ======================= PENGADUAN ======================= -->
-<section class="page seksi" id="pengaduan" style="background:var(--putih);">
-  <div class="kontainer">
-    <span class="badge-kuning badge-tengah">Layanan</span>
-    <h2 class="seksi-judul">Pengaduan &amp; Masukan</h2>
-    <p class="seksi-sub">Sampaikan pengaduan, saran, atau masukan Anda kepada sekolah</p>
-    <div class="pengaduan-wrap">
-      <div class="pengaduan-info">
-        <h3>📋 Cara Menyampaikan Pengaduan</h3>
-        <ol>
-          <li>Isi formulir di bawah ini dengan data dan keluhan/masukan Anda.</li>
-          <li>Pengaduan akan otomatis masuk ke sistem sekolah melalui Google Form.</li>
-          <li>Pihak sekolah akan menindaklanjuti pengaduan Anda melalui kontak yang tercantum.</li>
-          <li>Untuk hal mendesak, silakan hubungi sekolah langsung melalui tombol WhatsApp.</li>
-        </ol>
-      </div>
-      <div class="form-embed-wrap" id="formEmbedWrap">
-        <div class="form-belum-siap">Formulir pengaduan belum tersedia. Silakan hubungi pengelola website.</div>
-      </div>
     </div>
   </div>
 </section>
@@ -671,7 +658,7 @@
       <p><a href="#berita">Berita &amp; Info</a></p>
       <p><a href="#akademik">Akademik</a></p>
       <p><a href="#pelayanan-publik">Pelayanan Publik</a></p>
-      <p><a href="#pengaduan">Pengaduan</a></p>
+      <p><a href="#pelayanan-publik" data-tab-buka="pengaduan-info" data-tab-group-buka="layanan">Pengaduan</a></p>
     </div>
     <div>
       <h4>Kontak</h4>
@@ -723,8 +710,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwicSyfXzzAHVNV_yIPmeH_2D_jESSNKOlb6LI0p5Pyit9_6s5Ma3JqDfPE-6F_1Jrj/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -744,7 +731,7 @@ function tampilkanHalaman() {
   tautanNav.forEach(a => a.classList.toggle('aktif', a.getAttribute('href') === '#' + target));
   window.scrollTo(0, 0);
 
-  if (target === 'pengaduan') muatFormPengaduan();
+  if (target === 'pelayanan-publik') muatFormPengaduan();
   if (target === 'admin') tampilkanAdmin();
   aktifkanRevealTerlihat();
 }
@@ -776,10 +763,13 @@ document.addEventListener('click', function (e) {
   }
 });
 
-/* ---------- SISTEM TAB (dipakai di halaman Profil, Berita, Akademik) ---------- */
+/* ---------- SISTEM TAB (dipakai di halaman Profil, Berita, Akademik, Pelayanan Publik) ---------- */
 function bukaTab(grup, target) {
   document.querySelectorAll('.tab-btn[data-tab-group="' + grup + '"]').forEach(b => b.classList.toggle('aktif', b.dataset.tab === target));
   document.querySelectorAll('.tab-panel[data-tab-group="' + grup + '"]').forEach(p => p.classList.toggle('aktif', p.dataset.tabPanel === target));
+
+  const tombolAktif = document.querySelector('.tab-btn[data-tab-group="' + grup + '"][data-tab="' + target + '"]');
+  if (tombolAktif) tombolAktif.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => bukaTab(btn.dataset.tabGroup, btn.dataset.tab));
@@ -1027,7 +1017,7 @@ function renderPelayananPublik(p) {
   document.getElementById('saranaPrasaranaList').innerHTML = bangunDaftarLayanan(p.sarana_prasarana);
   document.getElementById('pelayananKhususList').innerHTML = bangunDaftarLayanan(p.pelayanan_khusus);
   document.getElementById('pengaduanInfoTeks').textContent = p.pengelolaan_pengaduan ||
-    'Pengaduan, kritik, dan saran dapat disampaikan melalui formulir pengaduan online pada menu Pengaduan, WhatsApp sekolah, atau kotak saran yang tersedia di lingkungan sekolah.';
+    'Pengaduan, kritik, dan saran dapat disampaikan melalui formulir di bawah ini, WhatsApp sekolah, atau kotak saran yang tersedia di lingkungan sekolah.';
 
   // SIPP disusun otomatis dari kanal informasi yang sudah tersedia di website ini
   const kanal = [{ label: 'Website Resmi Sekolah', nilai: window.location.origin + window.location.pathname }];
@@ -1040,6 +1030,27 @@ function renderPelayananPublik(p) {
   document.getElementById('sippList').innerHTML = '<div class="layanan-list">' + kanal.map(k =>
     '<div class="layanan-item"><strong>' + escapeHtml(k.label) + '</strong><span>' + escapeHtml(k.nilai) + '</span></div>'
   ).join('') + '</div>';
+}
+
+/**
+ * Menampilkan kartu foto publikasi/banner informasi resmi (misalnya poster
+ * hasil survei kepuasan masyarakat, infografis, dsb) di tab Info Pelayanan.
+ * Sumber fotonya sama dengan sheet "galeri" — cukup isi kolom kategori
+ * dengan kata yang mengandung "publikasi" (contoh: "Publikasi Informasi")
+ * agar foto tersebut otomatis muncul di sini, tanpa perlu sheet baru.
+ */
+function renderPublikasiBanner(galeriList) {
+  const wrap = document.getElementById('sippBannerWrap');
+  const fotoPublikasi = (galeriList || []).filter(g => g.url_foto && g.kategori && String(g.kategori).toLowerCase().indexOf('publikasi') !== -1);
+  if (!fotoPublikasi.length) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML = '<div class="sipp-banner-judul">📌 Publikasi Informasi</div>' +
+    '<div class="grid-kartu kolom-2">' + fotoPublikasi.map(g =>
+      '<div class="kartu"><div class="kartu-gambar"><img src="' + escapeHtml(g.url_foto) + '" alt="' + escapeHtml(g.judul || 'Publikasi informasi') + '" loading="lazy" onerror="this.closest(\'.kartu\').remove()"></div>' +
+      (g.judul ? '<div class="kartu-isi"><h3 style="font-size:0.92rem;">' + escapeHtml(g.judul) + '</h3></div>' : '') +
+      '</div>'
+    ).join('') + '</div>';
+  tandaiReveal(wrap.querySelector('.grid-kartu'));
 }
 
 /**
@@ -1541,6 +1552,7 @@ async function init() {
     renderEkskul(semua.ekstrakurikuler || []);
     renderPrestasi(semua.prestasi || []);
     renderGaleri(semua.galeri || []);
+    renderPublikasiBanner(semua.galeri || []);
     renderDokumen(semua.dokumen || []);
   } catch (err) {
     document.getElementById('profilDeskripsi').textContent = 'Gagal memuat data: ' + err.message;
