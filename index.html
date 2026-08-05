@@ -595,7 +595,7 @@
     </div>
 
     <div class="tab-panel" data-tab-panel="maklumat" data-tab-group="layanan">
-      <div class="maklumat-box"><p id="maklumatTeks">Memuat maklumat pelayanan...</p></div>
+      <div id="maklumatBoxWrap"><div class="maklumat-box"><p id="maklumatTeks">Memuat maklumat pelayanan...</p></div></div>
     </div>
 
     <div class="tab-panel" data-tab-panel="sarana" data-tab-group="layanan">
@@ -640,6 +640,19 @@
       </div>
       <div id="modalLayananIsi"></div>
       <div class="modal-layanan-tombol" id="modalLayananTombol"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalInfo">
+  <div class="modal-box">
+    <img class="modal-gambar" id="modalInfoGambar" src="" alt="" style="display:none;">
+    <div class="modal-isi">
+      <div class="modal-topbar">
+        <div><h3 id="modalInfoJudul"></h3></div>
+        <button class="modal-tutup" id="modalInfoTutupBtn">&times;</button>
+      </div>
+      <p id="modalInfoTeks"></p>
     </div>
   </div>
 </div>
@@ -744,7 +757,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbyg-GlnpEo_Z3txYhmYUi8AqtuFnfx6UX7XJwUtQ5zvcGp2yoNNKrUUMfowa56hZ_m3/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbz38WCzIQHc7dU8VQh6E-lz5KtoAtZdMjZ-cN0GNzcTF3UaRnjGIPPXe8djsOJJjtrY/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -1049,12 +1062,69 @@ function bangunDaftarLayanan(list) {
 }
 
 function renderPelayananPublik(p) {
-  document.getElementById('standarPelayananList').innerHTML = bangunDaftarLayanan(p.standar_pelayanan);
-  document.getElementById('maklumatTeks').textContent = p.maklumat_pelayanan || 'Maklumat pelayanan akan tampil di sini setelah diisi pada Google Sheet.';
-  document.getElementById('saranaPrasaranaList').innerHTML = bangunDaftarLayanan(p.sarana_prasarana);
-  document.getElementById('pelayananKhususList').innerHTML = bangunDaftarLayanan(p.pelayanan_khusus);
   document.getElementById('pengaduanInfoTeks').textContent = p.pengelolaan_pengaduan ||
     'Pengaduan, kritik, dan saran dapat disampaikan melalui formulir di bawah ini, WhatsApp sekolah, atau kotak saran yang tersedia di lingkungan sekolah.';
+}
+
+/**
+ * Menampilkan kartu informasi (Standar Pelayanan, Maklumat Pelayanan,
+ * Sarana & Prasarana, Pelayanan Khusus) — kalau ada data di sheet
+ * "info_layanan" untuk kategori tersebut, tampilkan sebagai kartu (bisa
+ * berfoto/poster). Kalau belum ada, tampilkan sebagai daftar teks biasa
+ * dari data profil (cara lama), supaya isian lama tidak hilang.
+ */
+function kartuInfoHtml(item, i) {
+  const gambar = item.foto_url
+    ? '<img src="' + escapeHtml(item.foto_url) + '" alt="' + escapeHtml(item.judul || '') + '" loading="lazy" onerror="this.remove()">'
+    : '📋';
+  return '<div class="layanan-kartu"><div class="layanan-kartu-gambar">' + gambar + '</div>' +
+    '<div class="layanan-kartu-isi"><h3>' + escapeHtml(item.judul || '') + '</h3>' +
+    '<button class="btn-detail" data-idx="' + i + '" type="button">Lihat Detail</button></div></div>';
+}
+
+function renderKartuInfo(containerId, list) {
+  const el = document.getElementById(containerId);
+  el.className = 'grid-layanan';
+  el.innerHTML = list.map((item, i) => kartuInfoHtml(item, i)).join('');
+  tandaiReveal(el);
+  el.querySelectorAll('.btn-detail').forEach(btn => {
+    btn.addEventListener('click', () => bukaModalInfo(list[parseInt(btn.dataset.idx, 10)]));
+  });
+}
+
+function bukaModalInfo(item) {
+  document.getElementById('modalInfoJudul').textContent = item.judul || '';
+  document.getElementById('modalInfoTeks').textContent = item.deskripsi || '';
+  const gambarEl = document.getElementById('modalInfoGambar');
+  if (item.foto_url) { gambarEl.src = item.foto_url; gambarEl.style.display = 'block'; gambarEl.onerror = () => gambarEl.style.display = 'none'; }
+  else { gambarEl.style.display = 'none'; }
+  document.getElementById('modalInfo').classList.add('terbuka');
+}
+document.getElementById('modalInfoTutupBtn').addEventListener('click', () => document.getElementById('modalInfo').classList.remove('terbuka'));
+document.getElementById('modalInfo').addEventListener('click', e => { if (e.target.id === 'modalInfo') e.currentTarget.classList.remove('terbuka'); });
+
+function renderInfoPelayanan(list, p) {
+  const kelompok = { standar: [], maklumat: [], sarana: [], khusus: [] };
+  (list || []).forEach(item => {
+    if (kelompok[item.kategori]) kelompok[item.kategori].push(item);
+  });
+
+  if (kelompok.standar.length) renderKartuInfo('standarPelayananList', kelompok.standar);
+  else document.getElementById('standarPelayananList').innerHTML = bangunDaftarLayanan(p.standar_pelayanan);
+
+  if (kelompok.sarana.length) renderKartuInfo('saranaPrasaranaList', kelompok.sarana);
+  else document.getElementById('saranaPrasaranaList').innerHTML = bangunDaftarLayanan(p.sarana_prasarana);
+
+  if (kelompok.khusus.length) renderKartuInfo('pelayananKhususList', kelompok.khusus);
+  else document.getElementById('pelayananKhususList').innerHTML = bangunDaftarLayanan(p.pelayanan_khusus);
+
+  const wrapMaklumat = document.getElementById('maklumatBoxWrap');
+  if (kelompok.maklumat.length) {
+    renderKartuInfo('maklumatBoxWrap', kelompok.maklumat);
+  } else {
+    wrapMaklumat.className = '';
+    wrapMaklumat.innerHTML = '<div class="maklumat-box"><p>' + escapeHtml(p.maklumat_pelayanan || 'Maklumat pelayanan akan tampil di sini setelah diisi pada Google Sheet.') + '</p></div>';
+  }
 }
 
 /* ---------- JENIS LAYANAN (kartu + halaman detail) ---------- */
@@ -1614,6 +1684,7 @@ async function init() {
   try {
     const semua = await ambilData('semua');
     renderProfil(semua.profil || {});
+    renderInfoPelayanan(semua.info_layanan || [], semua.profil || {});
     renderSlider(semua.slider || []);
     renderBerita(semua.berita || []);
     renderRingkasanBerita(semua.berita || []);
