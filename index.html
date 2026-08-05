@@ -443,6 +443,14 @@
     </div>
 
     <div class="ringkasan-head">
+      <h2>🧾 Pelayanan Publik</h2>
+      <a href="#pelayanan-publik" class="lihat-semua">Lihat semua →</a>
+    </div>
+    <div class="grid-layanan" id="ringkasanLayanan" style="margin-bottom:44px;">
+      <div class="status-muat">Memuat layanan...</div>
+    </div>
+
+    <div class="ringkasan-head">
       <h2>📰 Berita Terbaru</h2>
       <a href="#berita" class="lihat-semua">Lihat semua →</a>
     </div>
@@ -1128,23 +1136,37 @@ function renderInfoPelayanan(list, p) {
 }
 
 /* ---------- JENIS LAYANAN (kartu + halaman detail) ---------- */
+function kartuLayananHtml(l, i) {
+  const gambar = l.foto_url
+    ? '<img src="' + escapeHtml(l.foto_url) + '" alt="' + escapeHtml(l.nama_layanan) + '" loading="lazy" onerror="this.remove()">'
+    : '📄';
+  return '<div class="layanan-kartu"><div class="layanan-kartu-gambar">' + gambar + '</div>' +
+    '<div class="layanan-kartu-isi"><h3>' + escapeHtml(l.nama_layanan) + '</h3>' +
+    '<button class="btn-detail" data-idx="' + i + '" type="button">Lihat Detail</button></div></div>';
+}
+
+function pasangKlikLayanan(el, list) {
+  el.querySelectorAll('.btn-detail').forEach(btn => {
+    btn.addEventListener('click', () => bukaModalLayanan(list[parseInt(btn.dataset.idx, 10)]));
+  });
+}
+
 function renderJenisLayanan(list) {
   const el = document.getElementById('jenisLayananGrid');
   if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Jenis layanan belum diisi pada Google Sheet.</div>'; return; }
 
-  el.innerHTML = list.map((l, i) => {
-    const gambar = l.foto_url
-      ? '<img src="' + escapeHtml(l.foto_url) + '" alt="' + escapeHtml(l.nama_layanan) + '" loading="lazy" onerror="this.remove()">'
-      : '📄';
-    return '<div class="layanan-kartu"><div class="layanan-kartu-gambar">' + gambar + '</div>' +
-      '<div class="layanan-kartu-isi"><h3>' + escapeHtml(l.nama_layanan) + '</h3>' +
-      '<button class="btn-detail" data-idx="' + i + '" type="button">Lihat Detail</button></div></div>';
-  }).join('');
-
+  el.innerHTML = list.map((l, i) => kartuLayananHtml(l, i)).join('');
   tandaiReveal(el);
-  el.querySelectorAll('.btn-detail').forEach(btn => {
-    btn.addEventListener('click', () => bukaModalLayanan(list[parseInt(btn.dataset.idx, 10)]));
-  });
+  pasangKlikLayanan(el, list);
+}
+
+function renderRingkasanLayanan(list) {
+  const el = document.getElementById('ringkasanLayanan');
+  if (!list || !list.length) { el.innerHTML = '<div class="status-muat">Jenis layanan belum diisi.</div>'; return; }
+  const cuplikan = list.slice(0, 5);
+  el.innerHTML = cuplikan.map((l, i) => kartuLayananHtml(l, i)).join('');
+  tandaiReveal(el);
+  pasangKlikLayanan(el, cuplikan);
 }
 
 function barisDetailLayanan(judul, isi) {
@@ -1316,8 +1338,11 @@ function renderSosialMedia(p) {
 /* ---------- RENDER: KONTAK, PETA, WHATSAPP ---------- */
 function renderKontak(p) {
   const item = (ikon, label, nilai) => nilai ? '<div class="kontak-baris"><div class="kontak-ikon">' + ikon + '</div><div><h4>' + escapeHtml(label) + '</h4><p>' + escapeHtml(nilai) + '</p></div></div>' : '';
+  const itemTautan = (ikon, label, nilai, href) => nilai ? '<div class="kontak-baris"><div class="kontak-ikon">' + ikon + '</div><div><h4>' + escapeHtml(label) + '</h4><p><a href="' + escapeHtml(href) + '" style="color:var(--biru); font-weight:700;">' + escapeHtml(nilai) + '</a></p></div></div>' : '';
   const html = [
-    item('📍', 'Alamat', p.alamat), item('📞', 'Telepon', p.telepon), item('✉️', 'Email', p.email),
+    item('📍', 'Alamat', p.alamat),
+    itemTautan('📞', 'Telepon', p.telepon, 'tel:' + String(p.telepon || '').replace(/[^0-9+]/g, '')),
+    itemTautan('✉️', 'Email', p.email, 'mailto:' + p.email),
     item('💬', 'WhatsApp', p.whatsapp), item('🕒', 'Jam Operasional', p.jam_operasional)
   ].filter(Boolean).join('');
   document.getElementById('kontakInfo').innerHTML = html || '<p class="status-muat">Informasi kontak belum diisi.</p>';
@@ -1696,6 +1721,7 @@ async function init() {
     renderPrestasi(semua.prestasi || []);
     renderGaleri(semua.galeri || []);
     renderJenisLayanan(semua.layanan || []);
+    renderRingkasanLayanan(semua.layanan || []);
     renderDokumen(semua.dokumen || []);
   } catch (err) {
     document.getElementById('profilDeskripsi').textContent = 'Gagal memuat data: ' + err.message;
