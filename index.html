@@ -112,6 +112,16 @@
   .sambutan-mini .sambutan-isi p{display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; white-space:pre-line;}
   .sambutan-mini .sambutan-isi .nama-kecil{font-family:'Poppins',sans-serif; font-weight:700; color:var(--biru-tua); font-size:0.9rem; margin-top:4px;}
 
+  /* STRIP POSTER BERGERAK (BERANDA) */
+  .poster-wrap{margin-bottom:44px;}
+  .poster-marquee{overflow:hidden; -webkit-mask-image:linear-gradient(to right, transparent, black 4%, black 96%, transparent); mask-image:linear-gradient(to right, transparent, black 4%, black 96%, transparent);}
+  .poster-track{display:flex; gap:14px; width:max-content; animation:geserPoster 26s linear infinite;}
+  .poster-marquee:hover .poster-track{animation-play-state:paused;}
+  .poster-kartu{flex:0 0 auto; width:148px; aspect-ratio:3/4; border-radius:14px; overflow:hidden; box-shadow:var(--bayangan); cursor:pointer; background:var(--biru-muda); transition:transform .2s ease;}
+  .poster-kartu:hover{transform:translateY(-4px);}
+  .poster-kartu img{width:100%; height:100%; object-fit:cover; display:block;}
+  @keyframes geserPoster{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
   /* RINGKASAN BERANDA */
   .ringkasan-head{display:flex; justify-content:space-between; align-items:center; margin:0 0 16px;}
   .ringkasan-head h2{font-size:1.3rem;}
@@ -354,6 +364,7 @@
     .nav-menu li a.aktif{background:var(--biru-muda);}
     .hero h1{font-size:2.3rem;}
     .hero p{font-size:1.05rem;}
+    .poster-kartu{width:230px;}
     .stats-strip{grid-template-columns:repeat(4,1fr);}
     .beranda-identitas{grid-template-columns:1fr 1fr;}
     .ringkasan-grid{grid-template-columns:repeat(3,1fr);}
@@ -438,6 +449,17 @@
           <p id="berandaSambutanTeks">Memuat sambutan kepala sekolah...</p>
           <div class="nama-kecil" id="berandaSambutanNama">Kepala Sekolah</div>
           <a href="#profil" class="lihat-semua" data-tab-buka="sambutan" data-tab-group-buka="profil">Baca selengkapnya →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="poster-wrap" id="posterWrap">
+      <div class="ringkasan-head" style="margin-bottom:12px;">
+        <h2>📌 Poster &amp; Publikasi</h2>
+      </div>
+      <div class="poster-marquee">
+        <div class="poster-track" id="posterTrack">
+          <div class="status-muat">Memuat poster...</div>
         </div>
       </div>
     </div>
@@ -765,8 +787,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbz38WCzIQHc7dU8VQh6E-lz5KtoAtZdMjZ-cN0GNzcTF3UaRnjGIPPXe8djsOJJjtrY/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -1604,6 +1626,35 @@ function renderGaleri(list) {
   });
 }
 
+/**
+ * Strip poster/publikasi yang bergerak otomatis ke samping di Beranda.
+ * Sumber fotonya sama dengan sheet "galeri" — cukup isi kolom kategori
+ * dengan kata yang mengandung "poster" (contoh: "Poster Kegiatan" atau
+ * "Poster Media Sosial") agar foto itu otomatis muncul di sini.
+ */
+function renderPosterMarquee(galeriList) {
+  const wrap = document.getElementById('posterWrap');
+  const track = document.getElementById('posterTrack');
+  const poster = (galeriList || []).filter(g => g.url_foto && g.kategori && String(g.kategori).toLowerCase().indexOf('poster') !== -1);
+
+  if (!poster.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+
+  const htmlKartu = poster.map((g, i) =>
+    '<div class="poster-kartu" data-idx="' + i + '"><img src="' + escapeHtml(g.url_foto) + '" alt="" loading="lazy" onerror="this.closest(\'.poster-kartu\').remove()"></div>'
+  ).join('');
+  // Digandakan agar animasi bisa terus berulang secara mulus (looping tanpa putus)
+  track.innerHTML = htmlKartu + htmlKartu;
+  track.style.animationDuration = Math.max(poster.length * 4, 14) + 's';
+
+  track.querySelectorAll('.poster-kartu').forEach(kartu => {
+    kartu.addEventListener('click', () => {
+      const idx = parseInt(kartu.dataset.idx, 10);
+      bukaAlbum([poster[idx].url_foto], 0, '');
+    });
+  });
+}
+
 /* ---------- RENDER: DOKUMEN ---------- */
 function renderDokumen(list) {
   const el = document.getElementById('dokumenList');
@@ -1720,6 +1771,7 @@ async function init() {
     renderEkskul(semua.ekstrakurikuler || []);
     renderPrestasi(semua.prestasi || []);
     renderGaleri(semua.galeri || []);
+    renderPosterMarquee(semua.galeri || []);
     renderJenisLayanan(semua.layanan || []);
     renderRingkasanLayanan(semua.layanan || []);
     renderDokumen(semua.dokumen || []);
