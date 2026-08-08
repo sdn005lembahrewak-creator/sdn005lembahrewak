@@ -329,6 +329,30 @@
   .admin-topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;}
   .btn-keluar{background:transparent; border:1px solid #d9e2ec; color:var(--teks-lembut); padding:9px 16px; border-radius:20px; font-size:0.85rem; cursor:pointer; font-weight:700;}
   .pengaduan-kartu{background:var(--putih); border-radius:12px; padding:16px 18px; box-shadow:var(--bayangan); margin-bottom:12px;}
+
+  /* FORM ADMIN (Berita, Pengumuman, dst.) */
+  .admin-form-box{background:var(--putih); border-radius:var(--radius); padding:22px; box-shadow:var(--bayangan); margin-bottom:24px;}
+  .admin-form-box h3{font-size:1rem; margin-bottom:6px;}
+  .admin-form-box label{display:block; font-size:0.8rem; font-weight:700; color:var(--teks-lembut); margin:14px 0 5px;}
+  .admin-form-box input[type="text"], .admin-form-box input[type="date"], .admin-form-box input[type="file"], .admin-form-box textarea, .admin-form-box select{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid #d9e2ec; font-size:0.9rem; font-family:inherit; background:var(--putih);
+  }
+  .admin-form-box textarea{resize:vertical;}
+  .admin-preview{margin-top:10px;}
+  .admin-preview img{max-width:160px; max-height:160px; border-radius:8px; box-shadow:var(--bayangan); object-fit:cover;}
+  .admin-form-tombol{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;}
+  .btn-admin-simpan{background:var(--biru); color:var(--putih); border:none; padding:11px 22px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.88rem;}
+  .btn-admin-simpan:disabled{opacity:0.6; cursor:default;}
+  .btn-admin-batal{background:transparent; border:1px solid #d9e2ec; color:var(--teks-lembut); padding:11px 22px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.88rem;}
+  .admin-item-kartu{background:var(--putih); border-radius:12px; padding:14px 16px; box-shadow:var(--bayangan); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
+  .admin-item-utama{display:flex; align-items:center; gap:12px;}
+  .admin-item-thumb{width:44px; height:44px; border-radius:8px; object-fit:cover; flex-shrink:0; background:var(--biru-muda);}
+  .admin-item-kartu h4{font-size:0.92rem;}
+  .admin-item-kartu .meta{font-size:0.76rem; color:var(--teks-lembut);}
+  .admin-item-aksi{display:flex; gap:8px; flex-shrink:0;}
+  .admin-item-aksi button{padding:7px 14px; border-radius:16px; font-size:0.78rem; font-weight:700; cursor:pointer; border:none; font-family:inherit;}
+  .btn-edit{background:var(--biru-muda); color:var(--biru);}
+  .btn-hapus{background:#fde3e3; color:#c62828;}
   .pengaduan-kartu .baris-atas{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
   .pengaduan-kartu h4{font-size:0.96rem;}
   .pengaduan-kartu .meta{font-size:0.78rem; color:var(--teks-lembut);}
@@ -704,20 +728,203 @@
 <section class="page seksi" id="admin">
   <div class="kontainer">
     <h2 class="seksi-judul">Panel Admin</h2>
-    <p class="seksi-sub">Khusus pengelola sekolah — kelola data pengaduan yang masuk</p>
+    <p class="seksi-sub">Khusus pengelola sekolah — kelola pengaduan, berita, dan pengumuman</p>
     <div class="admin-login" id="adminLogin">
       <h3>🔒 Masuk Admin</h3>
-      <p>Masukkan kata sandi admin untuk melihat dan mengelola pengaduan.</p>
+      <p>Masukkan kata sandi admin untuk mengelola konten website.</p>
       <input type="password" id="adminPassword" placeholder="Kata sandi admin">
       <button id="adminMasukBtn">Masuk</button>
       <div class="admin-pesan" id="adminPesan"></div>
     </div>
     <div class="admin-panel" id="adminPanel">
       <div class="admin-topbar">
-        <strong id="adminRingkasan">Memuat data pengaduan...</strong>
+        <strong id="adminRingkasan">Panel Admin</strong>
         <button class="btn-keluar" id="adminKeluarBtn">Keluar</button>
       </div>
-      <div id="adminPengaduanList"></div>
+
+      <div class="tab-bar" data-tab-group="admin">
+        <button class="tab-btn aktif" data-tab="pengaduan" data-tab-group="admin">Pengaduan</button>
+        <button class="tab-btn" data-tab="berita" data-tab-group="admin">Berita</button>
+        <button class="tab-btn" data-tab="pengumuman" data-tab-group="admin">Pengumuman</button>
+        <button class="tab-btn" data-tab="galeri" data-tab-group="admin">Galeri &amp; Poster</button>
+        <button class="tab-btn" data-tab="guru" data-tab-group="admin">Guru</button>
+        <button class="tab-btn" data-tab="ekskul" data-tab-group="admin">Ekstrakurikuler</button>
+        <button class="tab-btn" data-tab="prestasi" data-tab-group="admin">Prestasi</button>
+      </div>
+
+      <div class="tab-panel aktif" data-tab-panel="pengaduan" data-tab-group="admin">
+        <p id="pengaduanRingkasan" style="font-size:0.85rem; color:var(--teks-lembut); margin-bottom:14px;">Memuat data pengaduan...</p>
+        <div id="adminPengaduanList"></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="berita" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="beritaFormJudul">Tambah Berita Baru</h3>
+          <input type="hidden" id="beritaBaris" value="">
+          <label>Judul</label>
+          <input type="text" id="beritaJudul" placeholder="Judul berita">
+          <label>Tanggal</label>
+          <input type="date" id="beritaTanggal">
+          <label>Ringkasan (opsional)</label>
+          <input type="text" id="beritaRingkasan" placeholder="Ringkasan singkat">
+          <label>Isi Berita</label>
+          <textarea id="beritaIsi" rows="5" placeholder="Isi lengkap berita"></textarea>
+          <label>Gambar</label>
+          <input type="file" id="beritaGambarFile" accept="image/*">
+          <div class="admin-preview" id="beritaGambarPreview"></div>
+          <input type="hidden" id="beritaGambarId" value="">
+          <label>Sumber Berita (opsional)</label>
+          <input type="text" id="beritaSumberUrl" placeholder="https://... (kalau kutipan dari media lain)">
+          <label>Status</label>
+          <select id="beritaStatus">
+            <option value="publish">Tampilkan (publish)</option>
+            <option value="draft">Simpan sebagai draft</option>
+          </select>
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="beritaSimpanBtn" type="button">Simpan Berita</button>
+            <button class="btn-admin-batal" id="beritaBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="beritaPesan"></div>
+        </div>
+        <div id="adminBeritaList"><div class="status-muat">Memuat daftar berita...</div></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="pengumuman" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="pengumumanFormJudul">Tambah Pengumuman Baru</h3>
+          <input type="hidden" id="pengumumanBaris" value="">
+          <label>Judul</label>
+          <input type="text" id="pengumumanJudul" placeholder="Judul pengumuman">
+          <label>Tanggal</label>
+          <input type="date" id="pengumumanTanggal">
+          <label>Isi Pengumuman</label>
+          <textarea id="pengumumanIsi" rows="4" placeholder="Isi pengumuman"></textarea>
+          <label>Penting?</label>
+          <select id="pengumumanPenting">
+            <option value="tidak">Biasa</option>
+            <option value="ya">Penting</option>
+          </select>
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="pengumumanSimpanBtn" type="button">Simpan Pengumuman</button>
+            <button class="btn-admin-batal" id="pengumumanBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="pengumumanPesan"></div>
+        </div>
+        <div id="adminPengumumanList"><div class="status-muat">Memuat daftar pengumuman...</div></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="galeri" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="galeriFormJudul">Tambah Foto Baru</h3>
+          <input type="hidden" id="galeriBaris" value="">
+          <label>Judul Foto (opsional)</label>
+          <input type="text" id="galeriJudul" placeholder="Misal: Upacara Bendera 17 Agustus">
+          <label>Kategori (menentukan album di menu Galeri)</label>
+          <input type="text" id="galeriKategori" list="daftarKategoriGaleri" placeholder="Misal: Upacara Bendera">
+          <datalist id="daftarKategoriGaleri"></datalist>
+          <p style="font-size:0.78rem; color:var(--teks-lembut); margin-top:4px;">💡 Tips: pakai kategori yang mengandung kata <strong>"Poster"</strong> (misal "Poster Kegiatan") supaya foto ini otomatis muncul di strip poster bergerak di Beranda.</p>
+          <label>Tanggal</label>
+          <input type="date" id="galeriTanggal">
+          <label>Foto</label>
+          <input type="file" id="galeriFotoFile" accept="image/*">
+          <div class="admin-preview" id="galeriFotoPreview"></div>
+          <input type="hidden" id="galeriFotoId" value="">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="galeriSimpanBtn" type="button">Simpan Foto</button>
+            <button class="btn-admin-batal" id="galeriBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="galeriPesan"></div>
+        </div>
+        <div id="adminGaleriList"><div class="status-muat">Memuat daftar foto...</div></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="guru" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="guruFormJudul">Tambah Guru Baru</h3>
+          <input type="hidden" id="guruBaris" value="">
+          <label>Nama Lengkap</label>
+          <input type="text" id="guruNama" placeholder="Nama lengkap beserta gelar">
+          <label>NIP (opsional)</label>
+          <input type="text" id="guruNip" placeholder="Nomor Induk Pegawai">
+          <label>Jabatan</label>
+          <input type="text" id="guruJabatan" placeholder="Misal: Guru, Wali Kelas 3, Kepala Sekolah">
+          <label>Mata Pelajaran / Kelas (opsional)</label>
+          <input type="text" id="guruMapel" placeholder="Misal: Wali Kelas 4">
+          <label>Pendidikan Terakhir (opsional)</label>
+          <input type="text" id="guruPendidikan" placeholder="Misal: S1 PGSD">
+          <label>Foto</label>
+          <input type="file" id="guruFotoFile" accept="image/*">
+          <div class="admin-preview" id="guruFotoPreview"></div>
+          <input type="hidden" id="guruFotoId" value="">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="guruSimpanBtn" type="button">Simpan Guru</button>
+            <button class="btn-admin-batal" id="guruBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="guruPesan"></div>
+        </div>
+        <div id="adminGuruList"><div class="status-muat">Memuat daftar guru...</div></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="ekskul" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="ekskulFormJudul">Tambah Ekstrakurikuler Baru</h3>
+          <input type="hidden" id="ekskulBaris" value="">
+          <label>Nama Kegiatan</label>
+          <input type="text" id="ekskulNama" placeholder="Misal: Pramuka">
+          <label>Deskripsi</label>
+          <textarea id="ekskulDeskripsi" rows="3" placeholder="Deskripsi singkat kegiatan"></textarea>
+          <label>Pembina</label>
+          <input type="text" id="ekskulPembina" placeholder="Nama pembina">
+          <p style="font-size:0.78rem; color:var(--teks-lembut); margin-top:4px;">💡 Kalau pembina lebih dari satu orang, pisahkan dengan tanda <strong>|</strong> (misal: <em>Budi, S.Pd|Siti, S.Pd</em>).</p>
+          <label>Jadwal</label>
+          <input type="text" id="ekskulJadwal" placeholder="Misal: Jumat, 14.00">
+          <label>Foto Sampul</label>
+          <input type="file" id="ekskulFotoFile" accept="image/*">
+          <div class="admin-preview" id="ekskulFotoPreview"></div>
+          <input type="hidden" id="ekskulFotoId" value="">
+          <label>Foto Kegiatan untuk Slide (boleh pilih beberapa sekaligus)</label>
+          <input type="file" id="ekskulGaleriFile" accept="image/*" multiple>
+          <div class="admin-preview" id="ekskulGaleriPreview"></div>
+          <input type="hidden" id="ekskulGaleriId" value="">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="ekskulSimpanBtn" type="button">Simpan Ekstrakurikuler</button>
+            <button class="btn-admin-batal" id="ekskulBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="ekskulPesan"></div>
+        </div>
+        <div id="adminEkskulList"><div class="status-muat">Memuat daftar ekstrakurikuler...</div></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="prestasi" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="prestasiFormJudul">Tambah Prestasi Baru</h3>
+          <input type="hidden" id="prestasiBaris" value="">
+          <label>Judul Prestasi</label>
+          <input type="text" id="prestasiJudul" placeholder="Misal: Juara 1 Lomba Cerdas Cermat">
+          <label>Nama Siswa (opsional)</label>
+          <input type="text" id="prestasiNamaSiswa" placeholder="Nama siswa/tim">
+          <label>Tingkat</label>
+          <input type="text" id="prestasiTingkat" placeholder="Misal: Kecamatan, Kabupaten, Provinsi">
+          <label>Tahun</label>
+          <input type="text" id="prestasiTahun" placeholder="Misal: 2026">
+          <label>Keterangan (opsional)</label>
+          <textarea id="prestasiKeterangan" rows="3" placeholder="Keterangan tambahan"></textarea>
+          <label>Foto Sampul</label>
+          <input type="file" id="prestasiFotoFile" accept="image/*">
+          <div class="admin-preview" id="prestasiFotoPreview"></div>
+          <input type="hidden" id="prestasiFotoId" value="">
+          <label>Foto Dokumentasi untuk Slide (boleh pilih beberapa sekaligus)</label>
+          <input type="file" id="prestasiGaleriFile" accept="image/*" multiple>
+          <div class="admin-preview" id="prestasiGaleriPreview"></div>
+          <input type="hidden" id="prestasiGaleriId" value="">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="prestasiSimpanBtn" type="button">Simpan Prestasi</button>
+            <button class="btn-admin-batal" id="prestasiBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="prestasiPesan"></div>
+        </div>
+        <div id="adminPrestasiList"><div class="status-muat">Memuat daftar prestasi...</div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -787,7 +994,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbz38WCzIQHc7dU8VQh6E-lz5KtoAtZdMjZ-cN0GNzcTF3UaRnjGIPPXe8djsOJJjtrY/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbxOAKjG9CtKUwSMmCuYB4lFxjm5edXHDrmfl0t116SDxaBKOlcF_TyXIzFwI8xpjvIh/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -1715,18 +1922,24 @@ document.getElementById('adminKeluarBtn').addEventListener('click', () => {
 async function bukaPanelAdmin(token) {
   document.getElementById('adminLogin').style.display = 'none';
   document.getElementById('adminPanel').classList.add('aktif');
-  document.getElementById('adminRingkasan').textContent = 'Memuat data pengaduan...';
   try {
     const data = await ambilData('pengaduan_admin', { token: token });
     renderPengaduanAdmin(data, token);
   } catch (err) {
-    document.getElementById('adminRingkasan').textContent = 'Gagal memuat data: sesi tidak valid.';
+    document.getElementById('pengaduanRingkasan').textContent = 'Gagal memuat data: sesi tidak valid.';
     sessionStorage.removeItem('token_admin_sekolah');
+    return;
   }
+  muatAdminBerita(token);
+  muatAdminPengumuman(token);
+  muatAdminGaleri(token);
+  muatAdminGuru(token);
+  muatAdminEkskul(token);
+  muatAdminPrestasi(token);
 }
 
 function renderPengaduanAdmin(list, token) {
-  document.getElementById('adminRingkasan').textContent = list.length ? 'Total ' + list.length + ' pengaduan masuk' : 'Belum ada pengaduan masuk';
+  document.getElementById('pengaduanRingkasan').textContent = list.length ? 'Total ' + list.length + ' pengaduan masuk' : 'Belum ada pengaduan masuk';
   const el = document.getElementById('adminPengaduanList');
   if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada pengaduan masuk.</div>'; return; }
   el.innerHTML = list.map(p => {
@@ -1754,6 +1967,756 @@ function renderPengaduanAdmin(list, token) {
     });
   });
 }
+
+/* ---------- ADMIN: UNGGAH GAMBAR OTOMATIS KE GOOGLE DRIVE ---------- */
+function bacaFileSebagaiBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1]);
+    reader.onerror = () => reject(new Error('Gagal membaca file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function unggahGambar(file, token) {
+  const base64 = await bacaFileSebagaiBase64(file);
+  const hasil = await kirimData({
+    action: 'upload_file',
+    token: token,
+    nama_file: file.name,
+    tipe_mime: file.type || 'image/jpeg',
+    data_base64: base64
+  });
+  return hasil.id;
+}
+
+/** Mengunggah beberapa foto sekaligus (untuk slide), hasil ID-nya digabung tanda "|". */
+async function unggahBanyakGambar(fileList, token) {
+  const daftarId = [];
+  for (const file of fileList) {
+    daftarId.push(await unggahGambar(file, token));
+  }
+  return daftarId.join('|');
+}
+
+/* ---------- ADMIN: KELOLA BERITA ---------- */
+async function muatAdminBerita(token) {
+  try {
+    const list = await ambilData('berita_admin', { token: token });
+    renderAdminBeritaList(list, token);
+  } catch (err) {
+    document.getElementById('adminBeritaList').innerHTML = '<div class="status-muat">Gagal memuat daftar berita.</div>';
+  }
+}
+
+function renderAdminBeritaList(list, token) {
+  const el = document.getElementById('adminBeritaList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada berita.</div>'; return; }
+
+  el.innerHTML = list.map(b =>
+    '<div class="admin-item-kartu"><div><h4>' + escapeHtml(b.judul || '(tanpa judul)') + '</h4>' +
+    '<span class="meta">' + formatTanggal(b.tanggal) + ' · ' + escapeHtml((b.status || 'publish')) + '</span></div>' +
+    '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + b.baris + '" type="button">Edit</button>' +
+    '<button class="btn-hapus" data-baris="' + b.baris + '" type="button">Hapus</button></div></div>'
+  ).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormBerita(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus berita ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_berita', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminBerita(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus berita: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormBerita(item) {
+  document.getElementById('beritaFormJudul').textContent = 'Ubah Berita';
+  document.getElementById('beritaBaris').value = item.baris;
+  document.getElementById('beritaJudul').value = item.judul || '';
+  document.getElementById('beritaTanggal').value = item.tanggal || '';
+  document.getElementById('beritaRingkasan').value = item.ringkasan || '';
+  document.getElementById('beritaIsi').value = item.isi || '';
+  document.getElementById('beritaGambarId').value = item.gambar || '';
+  document.getElementById('beritaSumberUrl').value = item.sumber_url || '';
+  document.getElementById('beritaStatus').value = item.status === 'draft' ? 'draft' : 'publish';
+  document.getElementById('beritaGambarPreview').innerHTML = item.gambar_url ? '<img src="' + escapeHtml(item.gambar_url) + '">' : '';
+  document.getElementById('beritaBatalBtn').style.display = 'inline-block';
+  document.getElementById('beritaJudul').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormBerita() {
+  document.getElementById('beritaFormJudul').textContent = 'Tambah Berita Baru';
+  document.getElementById('beritaBaris').value = '';
+  document.getElementById('beritaJudul').value = '';
+  document.getElementById('beritaTanggal').value = '';
+  document.getElementById('beritaRingkasan').value = '';
+  document.getElementById('beritaIsi').value = '';
+  document.getElementById('beritaGambarId').value = '';
+  document.getElementById('beritaGambarFile').value = '';
+  document.getElementById('beritaSumberUrl').value = '';
+  document.getElementById('beritaStatus').value = 'publish';
+  document.getElementById('beritaGambarPreview').innerHTML = '';
+  document.getElementById('beritaBatalBtn').style.display = 'none';
+  document.getElementById('beritaPesan').textContent = '';
+}
+document.getElementById('beritaBatalBtn').addEventListener('click', resetFormBerita);
+
+document.getElementById('beritaSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('beritaPesan');
+  const judul = document.getElementById('beritaJudul').value.trim();
+  if (!judul) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Judul wajib diisi.'; return; }
+
+  const tombol = document.getElementById('beritaSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idGambar = document.getElementById('beritaGambarId').value;
+    const fileInput = document.getElementById('beritaGambarFile');
+    if (fileInput.files && fileInput.files[0]) {
+      pesanEl.textContent = 'Mengunggah gambar...';
+      idGambar = await unggahGambar(fileInput.files[0], token);
+    }
+
+    await kirimData({
+      action: 'simpan_berita',
+      token: token,
+      baris: document.getElementById('beritaBaris').value,
+      judul: judul,
+      tanggal: document.getElementById('beritaTanggal').value,
+      ringkasan: document.getElementById('beritaRingkasan').value,
+      isi: document.getElementById('beritaIsi').value,
+      gambar: idGambar,
+      sumber_url: document.getElementById('beritaSumberUrl').value,
+      status: document.getElementById('beritaStatus').value
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormBerita();
+    muatAdminBerita(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA PENGUMUMAN ---------- */
+async function muatAdminPengumuman(token) {
+  try {
+    const list = await ambilData('pengumuman_admin', { token: token });
+    renderAdminPengumumanList(list, token);
+  } catch (err) {
+    document.getElementById('adminPengumumanList').innerHTML = '<div class="status-muat">Gagal memuat daftar pengumuman.</div>';
+  }
+}
+
+function renderAdminPengumumanList(list, token) {
+  const el = document.getElementById('adminPengumumanList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada pengumuman.</div>'; return; }
+
+  el.innerHTML = list.map(p =>
+    '<div class="admin-item-kartu"><div><h4>' + escapeHtml(p.judul || '(tanpa judul)') + '</h4>' +
+    '<span class="meta">' + formatTanggal(p.tanggal) + (String(p.penting || '').toLowerCase() === 'ya' ? ' · ❗ Penting' : '') + '</span></div>' +
+    '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + p.baris + '" type="button">Edit</button>' +
+    '<button class="btn-hapus" data-baris="' + p.baris + '" type="button">Hapus</button></div></div>'
+  ).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormPengumuman(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus pengumuman ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_pengumuman', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminPengumuman(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus pengumuman: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormPengumuman(item) {
+  document.getElementById('pengumumanFormJudul').textContent = 'Ubah Pengumuman';
+  document.getElementById('pengumumanBaris').value = item.baris;
+  document.getElementById('pengumumanJudul').value = item.judul || '';
+  document.getElementById('pengumumanTanggal').value = item.tanggal || '';
+  document.getElementById('pengumumanIsi').value = item.isi || '';
+  document.getElementById('pengumumanPenting').value = String(item.penting || '').toLowerCase() === 'ya' ? 'ya' : 'tidak';
+  document.getElementById('pengumumanBatalBtn').style.display = 'inline-block';
+  document.getElementById('pengumumanJudul').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormPengumuman() {
+  document.getElementById('pengumumanFormJudul').textContent = 'Tambah Pengumuman Baru';
+  document.getElementById('pengumumanBaris').value = '';
+  document.getElementById('pengumumanJudul').value = '';
+  document.getElementById('pengumumanTanggal').value = '';
+  document.getElementById('pengumumanIsi').value = '';
+  document.getElementById('pengumumanPenting').value = 'tidak';
+  document.getElementById('pengumumanBatalBtn').style.display = 'none';
+  document.getElementById('pengumumanPesan').textContent = '';
+}
+document.getElementById('pengumumanBatalBtn').addEventListener('click', resetFormPengumuman);
+
+document.getElementById('pengumumanSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('pengumumanPesan');
+  const judul = document.getElementById('pengumumanJudul').value.trim();
+  if (!judul) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Judul wajib diisi.'; return; }
+
+  const tombol = document.getElementById('pengumumanSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    await kirimData({
+      action: 'simpan_pengumuman',
+      token: token,
+      baris: document.getElementById('pengumumanBaris').value,
+      judul: judul,
+      tanggal: document.getElementById('pengumumanTanggal').value,
+      isi: document.getElementById('pengumumanIsi').value,
+      penting: document.getElementById('pengumumanPenting').value
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormPengumuman();
+    muatAdminPengumuman(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA GALERI & POSTER ---------- */
+async function muatAdminGaleri(token) {
+  try {
+    const list = await ambilData('galeri_admin', { token: token });
+    renderAdminGaleriList(list, token);
+    perbaruiSaranKategori(list);
+  } catch (err) {
+    document.getElementById('adminGaleriList').innerHTML = '<div class="status-muat">Gagal memuat daftar foto.</div>';
+  }
+}
+
+function perbaruiSaranKategori(list) {
+  const set = new Set();
+  (list || []).forEach(g => { if (g.kategori) set.add(g.kategori); });
+  document.getElementById('daftarKategoriGaleri').innerHTML =
+    Array.from(set).map(k => '<option value="' + escapeHtml(k) + '"></option>').join('');
+}
+
+function renderAdminGaleriList(list, token) {
+  const el = document.getElementById('adminGaleriList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada foto.</div>'; return; }
+
+  el.innerHTML = list.map(g => {
+    const thumb = g.gambar_url
+      ? '<img class="admin-item-thumb" src="' + escapeHtml(g.gambar_url) + '" alt="" onerror="this.remove()">'
+      : '<div class="admin-item-thumb"></div>';
+    return '<div class="admin-item-kartu"><div class="admin-item-utama">' + thumb +
+      '<div><h4>' + escapeHtml(g.judul || '(tanpa judul)') + '</h4>' +
+      '<span class="meta">' + escapeHtml(g.kategori || 'Umum') + (g.tanggal ? ' · ' + formatTanggal(g.tanggal) : '') + '</span></div></div>' +
+      '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + g.baris + '" type="button">Edit</button>' +
+      '<button class="btn-hapus" data-baris="' + g.baris + '" type="button">Hapus</button></div></div>';
+  }).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormGaleri(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus foto ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_galeri', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminGaleri(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus foto: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormGaleri(item) {
+  document.getElementById('galeriFormJudul').textContent = 'Ubah Foto';
+  document.getElementById('galeriBaris').value = item.baris;
+  document.getElementById('galeriJudul').value = item.judul || '';
+  document.getElementById('galeriKategori').value = item.kategori || '';
+  document.getElementById('galeriTanggal').value = item.tanggal || '';
+  document.getElementById('galeriFotoId').value = item.url_foto || '';
+  document.getElementById('galeriFotoPreview').innerHTML = item.gambar_url ? '<img src="' + escapeHtml(item.gambar_url) + '">' : '';
+  document.getElementById('galeriBatalBtn').style.display = 'inline-block';
+  document.getElementById('galeriJudul').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormGaleri() {
+  document.getElementById('galeriFormJudul').textContent = 'Tambah Foto Baru';
+  document.getElementById('galeriBaris').value = '';
+  document.getElementById('galeriJudul').value = '';
+  document.getElementById('galeriKategori').value = '';
+  document.getElementById('galeriTanggal').value = '';
+  document.getElementById('galeriFotoId').value = '';
+  document.getElementById('galeriFotoFile').value = '';
+  document.getElementById('galeriFotoPreview').innerHTML = '';
+  document.getElementById('galeriBatalBtn').style.display = 'none';
+  document.getElementById('galeriPesan').textContent = '';
+}
+document.getElementById('galeriBatalBtn').addEventListener('click', resetFormGaleri);
+
+document.getElementById('galeriSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('galeriPesan');
+  const fileInput = document.getElementById('galeriFotoFile');
+  const idFotoTersimpan = document.getElementById('galeriFotoId').value;
+
+  if (!fileInput.files[0] && !idFotoTersimpan) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Pilih foto terlebih dahulu.';
+    return;
+  }
+
+  const tombol = document.getElementById('galeriSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idFoto = idFotoTersimpan;
+    if (fileInput.files && fileInput.files[0]) {
+      pesanEl.textContent = 'Mengunggah foto...';
+      idFoto = await unggahGambar(fileInput.files[0], token);
+    }
+
+    await kirimData({
+      action: 'simpan_galeri',
+      token: token,
+      baris: document.getElementById('galeriBaris').value,
+      judul: document.getElementById('galeriJudul').value,
+      kategori: document.getElementById('galeriKategori').value,
+      tanggal: document.getElementById('galeriTanggal').value,
+      url_foto: idFoto
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormGaleri();
+    muatAdminGaleri(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA GURU ---------- */
+async function muatAdminGuru(token) {
+  try {
+    const list = await ambilData('guru_admin', { token: token });
+    renderAdminGuruList(list, token);
+  } catch (err) {
+    document.getElementById('adminGuruList').innerHTML = '<div class="status-muat">Gagal memuat daftar guru.</div>';
+  }
+}
+
+function renderAdminGuruList(list, token) {
+  const el = document.getElementById('adminGuruList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada data guru.</div>'; return; }
+
+  el.innerHTML = list.map(g => {
+    const thumb = g.gambar_url
+      ? '<img class="admin-item-thumb" src="' + escapeHtml(g.gambar_url) + '" alt="" onerror="this.remove()">'
+      : '<div class="admin-item-thumb"></div>';
+    return '<div class="admin-item-kartu"><div class="admin-item-utama">' + thumb +
+      '<div><h4>' + escapeHtml(g.nama || '(tanpa nama)') + '</h4>' +
+      '<span class="meta">' + escapeHtml(g.jabatan || '') + (g.mapel ? ' · ' + escapeHtml(g.mapel) : '') + '</span></div></div>' +
+      '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + g.baris + '" type="button">Edit</button>' +
+      '<button class="btn-hapus" data-baris="' + g.baris + '" type="button">Hapus</button></div></div>';
+  }).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormGuru(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus data guru ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_guru', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminGuru(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus data guru: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormGuru(item) {
+  document.getElementById('guruFormJudul').textContent = 'Ubah Data Guru';
+  document.getElementById('guruBaris').value = item.baris;
+  document.getElementById('guruNama').value = item.nama || '';
+  document.getElementById('guruNip').value = item.nip || '';
+  document.getElementById('guruJabatan').value = item.jabatan || '';
+  document.getElementById('guruMapel').value = item.mapel || '';
+  document.getElementById('guruPendidikan').value = item.pendidikan || '';
+  document.getElementById('guruFotoId').value = item.foto || '';
+  document.getElementById('guruFotoPreview').innerHTML = item.gambar_url ? '<img src="' + escapeHtml(item.gambar_url) + '">' : '';
+  document.getElementById('guruBatalBtn').style.display = 'inline-block';
+  document.getElementById('guruNama').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormGuru() {
+  document.getElementById('guruFormJudul').textContent = 'Tambah Guru Baru';
+  document.getElementById('guruBaris').value = '';
+  document.getElementById('guruNama').value = '';
+  document.getElementById('guruNip').value = '';
+  document.getElementById('guruJabatan').value = '';
+  document.getElementById('guruMapel').value = '';
+  document.getElementById('guruPendidikan').value = '';
+  document.getElementById('guruFotoId').value = '';
+  document.getElementById('guruFotoFile').value = '';
+  document.getElementById('guruFotoPreview').innerHTML = '';
+  document.getElementById('guruBatalBtn').style.display = 'none';
+  document.getElementById('guruPesan').textContent = '';
+}
+document.getElementById('guruBatalBtn').addEventListener('click', resetFormGuru);
+
+document.getElementById('guruSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('guruPesan');
+  const nama = document.getElementById('guruNama').value.trim();
+  if (!nama) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Nama wajib diisi.'; return; }
+
+  const tombol = document.getElementById('guruSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idFoto = document.getElementById('guruFotoId').value;
+    const fileInput = document.getElementById('guruFotoFile');
+    if (fileInput.files && fileInput.files[0]) {
+      pesanEl.textContent = 'Mengunggah foto...';
+      idFoto = await unggahGambar(fileInput.files[0], token);
+    }
+
+    await kirimData({
+      action: 'simpan_guru',
+      token: token,
+      baris: document.getElementById('guruBaris').value,
+      nama: nama,
+      nip: document.getElementById('guruNip').value,
+      jabatan: document.getElementById('guruJabatan').value,
+      mapel: document.getElementById('guruMapel').value,
+      pendidikan: document.getElementById('guruPendidikan').value,
+      foto: idFoto
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormGuru();
+    muatAdminGuru(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA EKSTRAKURIKULER ---------- */
+async function muatAdminEkskul(token) {
+  try {
+    const list = await ambilData('ekstrakurikuler_admin', { token: token });
+    renderAdminEkskulList(list, token);
+  } catch (err) {
+    document.getElementById('adminEkskulList').innerHTML = '<div class="status-muat">Gagal memuat daftar ekstrakurikuler.</div>';
+  }
+}
+
+function renderAdminEkskulList(list, token) {
+  const el = document.getElementById('adminEkskulList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada data ekstrakurikuler.</div>'; return; }
+
+  el.innerHTML = list.map(k => {
+    const thumb = k.gambar_url
+      ? '<img class="admin-item-thumb" src="' + escapeHtml(k.gambar_url) + '" alt="" onerror="this.remove()">'
+      : '<div class="admin-item-thumb"></div>';
+    return '<div class="admin-item-kartu"><div class="admin-item-utama">' + thumb +
+      '<div><h4>' + escapeHtml(k.nama_kegiatan || '(tanpa nama)') + '</h4>' +
+      '<span class="meta">' + escapeHtml(k.jadwal || '') + '</span></div></div>' +
+      '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + k.baris + '" type="button">Edit</button>' +
+      '<button class="btn-hapus" data-baris="' + k.baris + '" type="button">Hapus</button></div></div>';
+  }).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormEkskul(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus ekstrakurikuler ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_ekstrakurikuler', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminEkskul(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormEkskul(item) {
+  document.getElementById('ekskulFormJudul').textContent = 'Ubah Ekstrakurikuler';
+  document.getElementById('ekskulBaris').value = item.baris;
+  document.getElementById('ekskulNama').value = item.nama_kegiatan || '';
+  document.getElementById('ekskulDeskripsi').value = item.deskripsi || '';
+  document.getElementById('ekskulPembina').value = item.pembina || '';
+  document.getElementById('ekskulJadwal').value = item.jadwal || '';
+  document.getElementById('ekskulFotoId').value = item.foto || '';
+  document.getElementById('ekskulFotoPreview').innerHTML = item.gambar_url ? '<img src="' + escapeHtml(item.gambar_url) + '">' : '';
+  document.getElementById('ekskulGaleriId').value = item.galeri_foto || '';
+  document.getElementById('ekskulGaleriPreview').innerHTML = item.galeri_foto
+    ? '<p style="font-size:0.78rem; color:var(--teks-lembut);">' + item.galeri_foto.split('|').length + ' foto tersimpan. Pilih foto baru untuk menggantinya.</p>' : '';
+  document.getElementById('ekskulBatalBtn').style.display = 'inline-block';
+  document.getElementById('ekskulNama').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormEkskul() {
+  document.getElementById('ekskulFormJudul').textContent = 'Tambah Ekstrakurikuler Baru';
+  document.getElementById('ekskulBaris').value = '';
+  document.getElementById('ekskulNama').value = '';
+  document.getElementById('ekskulDeskripsi').value = '';
+  document.getElementById('ekskulPembina').value = '';
+  document.getElementById('ekskulJadwal').value = '';
+  document.getElementById('ekskulFotoId').value = '';
+  document.getElementById('ekskulFotoFile').value = '';
+  document.getElementById('ekskulFotoPreview').innerHTML = '';
+  document.getElementById('ekskulGaleriId').value = '';
+  document.getElementById('ekskulGaleriFile').value = '';
+  document.getElementById('ekskulGaleriPreview').innerHTML = '';
+  document.getElementById('ekskulBatalBtn').style.display = 'none';
+  document.getElementById('ekskulPesan').textContent = '';
+}
+document.getElementById('ekskulBatalBtn').addEventListener('click', resetFormEkskul);
+
+document.getElementById('ekskulSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('ekskulPesan');
+  const nama = document.getElementById('ekskulNama').value.trim();
+  if (!nama) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Nama kegiatan wajib diisi.'; return; }
+
+  const tombol = document.getElementById('ekskulSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idFoto = document.getElementById('ekskulFotoId').value;
+    const fileSampul = document.getElementById('ekskulFotoFile');
+    if (fileSampul.files && fileSampul.files[0]) {
+      pesanEl.textContent = 'Mengunggah foto sampul...';
+      idFoto = await unggahGambar(fileSampul.files[0], token);
+    }
+
+    let idGaleri = document.getElementById('ekskulGaleriId').value;
+    const fileGaleri = document.getElementById('ekskulGaleriFile');
+    if (fileGaleri.files && fileGaleri.files.length) {
+      pesanEl.textContent = 'Mengunggah ' + fileGaleri.files.length + ' foto slide...';
+      idGaleri = await unggahBanyakGambar(Array.from(fileGaleri.files), token);
+    }
+
+    await kirimData({
+      action: 'simpan_ekstrakurikuler',
+      token: token,
+      baris: document.getElementById('ekskulBaris').value,
+      nama_kegiatan: nama,
+      deskripsi: document.getElementById('ekskulDeskripsi').value,
+      pembina: document.getElementById('ekskulPembina').value,
+      jadwal: document.getElementById('ekskulJadwal').value,
+      foto: idFoto,
+      galeri_foto: idGaleri
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormEkskul();
+    muatAdminEkskul(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA PRESTASI ---------- */
+async function muatAdminPrestasi(token) {
+  try {
+    const list = await ambilData('prestasi_admin', { token: token });
+    renderAdminPrestasiList(list, token);
+  } catch (err) {
+    document.getElementById('adminPrestasiList').innerHTML = '<div class="status-muat">Gagal memuat daftar prestasi.</div>';
+  }
+}
+
+function renderAdminPrestasiList(list, token) {
+  const el = document.getElementById('adminPrestasiList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada data prestasi.</div>'; return; }
+
+  el.innerHTML = list.map(p => {
+    const thumb = p.gambar_url
+      ? '<img class="admin-item-thumb" src="' + escapeHtml(p.gambar_url) + '" alt="" onerror="this.remove()">'
+      : '<div class="admin-item-thumb"></div>';
+    return '<div class="admin-item-kartu"><div class="admin-item-utama">' + thumb +
+      '<div><h4>' + escapeHtml(p.judul || '(tanpa judul)') + '</h4>' +
+      '<span class="meta">' + escapeHtml(p.tingkat || '') + (p.tahun ? ' · ' + escapeHtml(p.tahun) : '') + '</span></div></div>' +
+      '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + p.baris + '" type="button">Edit</button>' +
+      '<button class="btn-hapus" data-baris="' + p.baris + '" type="button">Hapus</button></div></div>';
+  }).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormPrestasi(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus prestasi ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_prestasi', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminPrestasi(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormPrestasi(item) {
+  document.getElementById('prestasiFormJudul').textContent = 'Ubah Prestasi';
+  document.getElementById('prestasiBaris').value = item.baris;
+  document.getElementById('prestasiJudul').value = item.judul || '';
+  document.getElementById('prestasiNamaSiswa').value = item.nama_siswa || '';
+  document.getElementById('prestasiTingkat').value = item.tingkat || '';
+  document.getElementById('prestasiTahun').value = item.tahun || '';
+  document.getElementById('prestasiKeterangan').value = item.keterangan || '';
+  document.getElementById('prestasiFotoId').value = item.foto || '';
+  document.getElementById('prestasiFotoPreview').innerHTML = item.gambar_url ? '<img src="' + escapeHtml(item.gambar_url) + '">' : '';
+  document.getElementById('prestasiGaleriId').value = item.galeri_foto || '';
+  document.getElementById('prestasiGaleriPreview').innerHTML = item.galeri_foto
+    ? '<p style="font-size:0.78rem; color:var(--teks-lembut);">' + item.galeri_foto.split('|').length + ' foto tersimpan. Pilih foto baru untuk menggantinya.</p>' : '';
+  document.getElementById('prestasiBatalBtn').style.display = 'inline-block';
+  document.getElementById('prestasiJudul').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormPrestasi() {
+  document.getElementById('prestasiFormJudul').textContent = 'Tambah Prestasi Baru';
+  document.getElementById('prestasiBaris').value = '';
+  document.getElementById('prestasiJudul').value = '';
+  document.getElementById('prestasiNamaSiswa').value = '';
+  document.getElementById('prestasiTingkat').value = '';
+  document.getElementById('prestasiTahun').value = '';
+  document.getElementById('prestasiKeterangan').value = '';
+  document.getElementById('prestasiFotoId').value = '';
+  document.getElementById('prestasiFotoFile').value = '';
+  document.getElementById('prestasiFotoPreview').innerHTML = '';
+  document.getElementById('prestasiGaleriId').value = '';
+  document.getElementById('prestasiGaleriFile').value = '';
+  document.getElementById('prestasiGaleriPreview').innerHTML = '';
+  document.getElementById('prestasiBatalBtn').style.display = 'none';
+  document.getElementById('prestasiPesan').textContent = '';
+}
+document.getElementById('prestasiBatalBtn').addEventListener('click', resetFormPrestasi);
+
+document.getElementById('prestasiSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('prestasiPesan');
+  const judul = document.getElementById('prestasiJudul').value.trim();
+  if (!judul) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Judul prestasi wajib diisi.'; return; }
+
+  const tombol = document.getElementById('prestasiSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idFoto = document.getElementById('prestasiFotoId').value;
+    const fileSampul = document.getElementById('prestasiFotoFile');
+    if (fileSampul.files && fileSampul.files[0]) {
+      pesanEl.textContent = 'Mengunggah foto sampul...';
+      idFoto = await unggahGambar(fileSampul.files[0], token);
+    }
+
+    let idGaleri = document.getElementById('prestasiGaleriId').value;
+    const fileGaleri = document.getElementById('prestasiGaleriFile');
+    if (fileGaleri.files && fileGaleri.files.length) {
+      pesanEl.textContent = 'Mengunggah ' + fileGaleri.files.length + ' foto...';
+      idGaleri = await unggahBanyakGambar(Array.from(fileGaleri.files), token);
+    }
+
+    await kirimData({
+      action: 'simpan_prestasi',
+      token: token,
+      baris: document.getElementById('prestasiBaris').value,
+      judul: judul,
+      nama_siswa: document.getElementById('prestasiNamaSiswa').value,
+      tingkat: document.getElementById('prestasiTingkat').value,
+      tahun: document.getElementById('prestasiTahun').value,
+      keterangan: document.getElementById('prestasiKeterangan').value,
+      foto: idFoto,
+      galeri_foto: idGaleri
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormPrestasi();
+    muatAdminPrestasi(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
 
 /* ---------- INISIALISASI ---------- */
 async function init() {
