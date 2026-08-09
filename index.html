@@ -820,6 +820,8 @@
           <input type="hidden" id="galeriBaris" value="">
           <label>Judul Foto (opsional)</label>
           <input type="text" id="galeriJudul" placeholder="Misal: Upacara Bendera 17 Agustus">
+          <label>Urutan Tampil (angka, opsional — kosongkan untuk urut otomatis)</label>
+          <input type="text" id="galeriUrutan" placeholder="Misal: 1">
           <label>Kategori (menentukan album di menu Galeri)</label>
           <input type="text" id="galeriKategori" list="daftarKategoriGaleri" placeholder="Misal: Upacara Bendera">
           <datalist id="daftarKategoriGaleri"></datalist>
@@ -845,6 +847,8 @@
           <input type="hidden" id="guruBaris" value="">
           <label>Nama Lengkap</label>
           <input type="text" id="guruNama" placeholder="Nama lengkap beserta gelar">
+          <label>Urutan Tampil (angka, opsional — kosongkan untuk urut otomatis)</label>
+          <input type="text" id="guruUrutan" placeholder="Misal: 1">
           <label>NIP (opsional)</label>
           <input type="text" id="guruNip" placeholder="Nomor Induk Pegawai">
           <label>Jabatan</label>
@@ -872,6 +876,8 @@
           <input type="hidden" id="ekskulBaris" value="">
           <label>Nama Kegiatan</label>
           <input type="text" id="ekskulNama" placeholder="Misal: Pramuka">
+          <label>Urutan Tampil (angka, opsional — kosongkan untuk urut otomatis)</label>
+          <input type="text" id="ekskulUrutan" placeholder="Misal: 1">
           <label>Deskripsi</label>
           <textarea id="ekskulDeskripsi" rows="3" placeholder="Deskripsi singkat kegiatan"></textarea>
           <label>Pembina</label>
@@ -902,6 +908,8 @@
           <input type="hidden" id="prestasiBaris" value="">
           <label>Judul Prestasi</label>
           <input type="text" id="prestasiJudul" placeholder="Misal: Juara 1 Lomba Cerdas Cermat">
+          <label>Urutan Tampil (angka, opsional — kosongkan untuk urut otomatis berdasar tahun)</label>
+          <input type="text" id="prestasiUrutan" placeholder="Misal: 1">
           <label>Nama Siswa (opsional)</label>
           <input type="text" id="prestasiNamaSiswa" placeholder="Nama siswa/tim">
           <label>Tingkat</label>
@@ -1029,7 +1037,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://"https://script.google.com/macros/s/AKfycbz7_vgsEsLiGfyzwiAKJNTXdB2jp8PLgdIVhUd5fHS07G7tWYuTFaIXPJQlsIZ8Zegt/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbz7_vgsEsLiGfyzwiAKJNTXdB2jp8PLgdIVhUd5fHS07G7tWYuTFaIXPJQlsIZ8Zegt/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -2307,6 +2315,7 @@ function isiFormGaleri(item) {
   document.getElementById('galeriFormJudul').textContent = 'Ubah Foto';
   document.getElementById('galeriBaris').value = item.baris;
   document.getElementById('galeriJudul').value = item.judul || '';
+  document.getElementById('galeriUrutan').value = item.urutan || '';
   document.getElementById('galeriKategori').value = item.kategori || '';
   document.getElementById('galeriTanggal').value = item.tanggal || '';
   document.getElementById('galeriFotoId').value = item.url_foto || '';
@@ -2319,6 +2328,7 @@ function resetFormGaleri() {
   document.getElementById('galeriFormJudul').textContent = 'Tambah Foto Baru';
   document.getElementById('galeriBaris').value = '';
   document.getElementById('galeriJudul').value = '';
+  document.getElementById('galeriUrutan').value = '';
   document.getElementById('galeriKategori').value = '';
   document.getElementById('galeriTanggal').value = '';
   document.getElementById('galeriFotoId').value = '';
@@ -2358,6 +2368,7 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
       token: token,
       baris: document.getElementById('galeriBaris').value,
       judul: document.getElementById('galeriJudul').value,
+      urutan: document.getElementById('galeriUrutan').value,
       kategori: document.getElementById('galeriKategori').value,
       tanggal: document.getElementById('galeriTanggal').value,
       url_foto: idFoto
@@ -2424,6 +2435,7 @@ function isiFormGuru(item) {
   document.getElementById('guruFormJudul').textContent = 'Ubah Data Guru';
   document.getElementById('guruBaris').value = item.baris;
   document.getElementById('guruNama').value = item.nama || '';
+  document.getElementById('guruUrutan').value = item.urutan || '';
   document.getElementById('guruNip').value = item.nip || '';
   document.getElementById('guruJabatan').value = item.jabatan || '';
   document.getElementById('guruMapel').value = item.mapel || '';
@@ -2438,6 +2450,7 @@ function resetFormGuru() {
   document.getElementById('guruFormJudul').textContent = 'Tambah Guru Baru';
   document.getElementById('guruBaris').value = '';
   document.getElementById('guruNama').value = '';
+  document.getElementById('guruUrutan').value = '';
   document.getElementById('guruNip').value = '';
   document.getElementById('guruJabatan').value = '';
   document.getElementById('guruMapel').value = '';
@@ -2474,6 +2487,7 @@ document.getElementById('guruSimpanBtn').addEventListener('click', async () => {
       token: token,
       baris: document.getElementById('guruBaris').value,
       nama: nama,
+      urutan: document.getElementById('guruUrutan').value,
       nip: document.getElementById('guruNip').value,
       jabatan: document.getElementById('guruJabatan').value,
       mapel: document.getElementById('guruMapel').value,
@@ -2542,6 +2556,7 @@ function isiFormEkskul(item) {
   document.getElementById('ekskulFormJudul').textContent = 'Ubah Ekstrakurikuler';
   document.getElementById('ekskulBaris').value = item.baris;
   document.getElementById('ekskulNama').value = item.nama_kegiatan || '';
+  document.getElementById('ekskulUrutan').value = item.urutan || '';
   document.getElementById('ekskulDeskripsi').value = item.deskripsi || '';
   document.getElementById('ekskulPembina').value = item.pembina || '';
   document.getElementById('ekskulJadwal').value = item.jadwal || '';
@@ -2558,6 +2573,7 @@ function resetFormEkskul() {
   document.getElementById('ekskulFormJudul').textContent = 'Tambah Ekstrakurikuler Baru';
   document.getElementById('ekskulBaris').value = '';
   document.getElementById('ekskulNama').value = '';
+  document.getElementById('ekskulUrutan').value = '';
   document.getElementById('ekskulDeskripsi').value = '';
   document.getElementById('ekskulPembina').value = '';
   document.getElementById('ekskulJadwal').value = '';
@@ -2603,6 +2619,7 @@ document.getElementById('ekskulSimpanBtn').addEventListener('click', async () =>
       token: token,
       baris: document.getElementById('ekskulBaris').value,
       nama_kegiatan: nama,
+      urutan: document.getElementById('ekskulUrutan').value,
       deskripsi: document.getElementById('ekskulDeskripsi').value,
       pembina: document.getElementById('ekskulPembina').value,
       jadwal: document.getElementById('ekskulJadwal').value,
@@ -2671,6 +2688,7 @@ function isiFormPrestasi(item) {
   document.getElementById('prestasiFormJudul').textContent = 'Ubah Prestasi';
   document.getElementById('prestasiBaris').value = item.baris;
   document.getElementById('prestasiJudul').value = item.judul || '';
+  document.getElementById('prestasiUrutan').value = item.urutan || '';
   document.getElementById('prestasiNamaSiswa').value = item.nama_siswa || '';
   document.getElementById('prestasiTingkat').value = item.tingkat || '';
   document.getElementById('prestasiTahun').value = item.tahun || '';
@@ -2688,6 +2706,7 @@ function resetFormPrestasi() {
   document.getElementById('prestasiFormJudul').textContent = 'Tambah Prestasi Baru';
   document.getElementById('prestasiBaris').value = '';
   document.getElementById('prestasiJudul').value = '';
+  document.getElementById('prestasiUrutan').value = '';
   document.getElementById('prestasiNamaSiswa').value = '';
   document.getElementById('prestasiTingkat').value = '';
   document.getElementById('prestasiTahun').value = '';
@@ -2734,6 +2753,7 @@ document.getElementById('prestasiSimpanBtn').addEventListener('click', async () 
       token: token,
       baris: document.getElementById('prestasiBaris').value,
       judul: judul,
+      urutan: document.getElementById('prestasiUrutan').value,
       nama_siswa: document.getElementById('prestasiNamaSiswa').value,
       tingkat: document.getElementById('prestasiTingkat').value,
       tahun: document.getElementById('prestasiTahun').value,
