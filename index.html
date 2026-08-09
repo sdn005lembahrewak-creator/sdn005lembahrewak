@@ -750,6 +750,7 @@
         <button class="tab-btn" data-tab="guru" data-tab-group="admin">Guru</button>
         <button class="tab-btn" data-tab="ekskul" data-tab-group="admin">Ekstrakurikuler</button>
         <button class="tab-btn" data-tab="prestasi" data-tab-group="admin">Prestasi</button>
+        <button class="tab-btn" data-tab="layanan" data-tab-group="admin">Jenis Layanan</button>
       </div>
 
       <div class="tab-panel aktif" data-tab-panel="pengaduan" data-tab-group="admin">
@@ -925,6 +926,40 @@
         </div>
         <div id="adminPrestasiList"><div class="status-muat">Memuat daftar prestasi...</div></div>
       </div>
+
+      <div class="tab-panel" data-tab-panel="layanan" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="layananFormJudul">Tambah Jenis Layanan Baru</h3>
+          <input type="hidden" id="layananBaris" value="">
+          <label>Nama Layanan</label>
+          <input type="text" id="layananNama" placeholder="Misal: Sistem Penerimaan Murid Baru (SPMB)">
+          <label>Urutan Tampil (angka, opsional)</label>
+          <input type="text" id="layananUrutan" placeholder="Misal: 1">
+          <label>Deskripsi Layanan</label>
+          <textarea id="layananDeskripsi" rows="3" placeholder="Deskripsi singkat layanan ini"></textarea>
+          <label>Persyaratan</label>
+          <textarea id="layananPersyaratan" rows="3" placeholder="Fotokopi KK|Akta Kelahiran|Usia minimal 6 tahun"></textarea>
+          <label>Prosedur Pelayanan</label>
+          <textarea id="layananProsedur" rows="3" placeholder="Mengambil formulir|Mengisi berkas|Verifikasi|Pengumuman"></textarea>
+          <p style="font-size:0.78rem; color:var(--teks-lembut); margin-top:4px;">💡 Untuk Persyaratan, Prosedur, dan Produk Layanan: tulis tiap butir dipisah tanda <strong>|</strong> supaya tampil sebagai daftar rapi di website.</p>
+          <label>Jangka Waktu</label>
+          <input type="text" id="layananJangkaWaktu" placeholder="Misal: 1-3 hari kerja">
+          <label>Biaya/Tarif</label>
+          <input type="text" id="layananBiaya" placeholder="Misal: Gratis, tanpa dipungut biaya">
+          <label>Produk Layanan</label>
+          <textarea id="layananProdukLayanan" rows="2" placeholder="Surat keterangan|Dokumen resmi bertanda tangan"></textarea>
+          <label>Foto/Poster Layanan</label>
+          <input type="file" id="layananFotoFile" accept="image/*">
+          <div class="admin-preview" id="layananFotoPreview"></div>
+          <input type="hidden" id="layananFotoId" value="">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="layananSimpanBtn" type="button">Simpan Layanan</button>
+            <button class="btn-admin-batal" id="layananBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="layananPesan"></div>
+        </div>
+        <div id="adminLayananList"><div class="status-muat">Memuat daftar layanan...</div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -994,7 +1029,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxOAKjG9CtKUwSMmCuYB4lFxjm5edXHDrmfl0t116SDxaBKOlcF_TyXIzFwI8xpjvIh/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbwLWgxryiIuUaOQBIHJwmFN5mHFD2y4_LiEqn6UY1t48DjrAd_GYc7WWpL-IhkjHo_q/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -1936,6 +1971,7 @@ async function bukaPanelAdmin(token) {
   muatAdminGuru(token);
   muatAdminEkskul(token);
   muatAdminPrestasi(token);
+  muatAdminLayanan(token);
 }
 
 function renderPengaduanAdmin(list, token) {
@@ -2710,6 +2746,133 @@ document.getElementById('prestasiSimpanBtn').addEventListener('click', async () 
     pesanEl.textContent = 'Berhasil disimpan.';
     resetFormPrestasi();
     muatAdminPrestasi(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA JENIS LAYANAN ---------- */
+async function muatAdminLayanan(token) {
+  try {
+    const list = await ambilData('layanan_admin', { token: token });
+    renderAdminLayananList(list, token);
+  } catch (err) {
+    document.getElementById('adminLayananList').innerHTML = '<div class="status-muat">Gagal memuat daftar layanan.</div>';
+  }
+}
+
+function renderAdminLayananList(list, token) {
+  const el = document.getElementById('adminLayananList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada jenis layanan.</div>'; return; }
+
+  el.innerHTML = list.map(l => {
+    const thumb = l.gambar_url
+      ? '<img class="admin-item-thumb" src="' + escapeHtml(l.gambar_url) + '" alt="" onerror="this.remove()">'
+      : '<div class="admin-item-thumb"></div>';
+    return '<div class="admin-item-kartu"><div class="admin-item-utama">' + thumb +
+      '<div><h4>' + escapeHtml(l.nama_layanan || '(tanpa nama)') + '</h4>' +
+      '<span class="meta">' + (l.urutan ? 'Urutan ' + escapeHtml(l.urutan) : '') + '</span></div></div>' +
+      '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + l.baris + '" type="button">Edit</button>' +
+      '<button class="btn-hapus" data-baris="' + l.baris + '" type="button">Hapus</button></div></div>';
+  }).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormLayanan(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus jenis layanan ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_layanan', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminLayanan(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormLayanan(item) {
+  document.getElementById('layananFormJudul').textContent = 'Ubah Jenis Layanan';
+  document.getElementById('layananBaris').value = item.baris;
+  document.getElementById('layananNama').value = item.nama_layanan || '';
+  document.getElementById('layananUrutan').value = item.urutan || '';
+  document.getElementById('layananDeskripsi').value = item.deskripsi || '';
+  document.getElementById('layananPersyaratan').value = item.persyaratan || '';
+  document.getElementById('layananProsedur').value = item.prosedur || '';
+  document.getElementById('layananJangkaWaktu').value = item.jangka_waktu || '';
+  document.getElementById('layananBiaya').value = item.biaya || '';
+  document.getElementById('layananProdukLayanan').value = item.produk_layanan || '';
+  document.getElementById('layananFotoId').value = item.foto || '';
+  document.getElementById('layananFotoPreview').innerHTML = item.gambar_url ? '<img src="' + escapeHtml(item.gambar_url) + '">' : '';
+  document.getElementById('layananBatalBtn').style.display = 'inline-block';
+  document.getElementById('layananNama').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormLayanan() {
+  document.getElementById('layananFormJudul').textContent = 'Tambah Jenis Layanan Baru';
+  document.getElementById('layananBaris').value = '';
+  document.getElementById('layananNama').value = '';
+  document.getElementById('layananUrutan').value = '';
+  document.getElementById('layananDeskripsi').value = '';
+  document.getElementById('layananPersyaratan').value = '';
+  document.getElementById('layananProsedur').value = '';
+  document.getElementById('layananJangkaWaktu').value = '';
+  document.getElementById('layananBiaya').value = '';
+  document.getElementById('layananProdukLayanan').value = '';
+  document.getElementById('layananFotoId').value = '';
+  document.getElementById('layananFotoFile').value = '';
+  document.getElementById('layananFotoPreview').innerHTML = '';
+  document.getElementById('layananBatalBtn').style.display = 'none';
+  document.getElementById('layananPesan').textContent = '';
+}
+document.getElementById('layananBatalBtn').addEventListener('click', resetFormLayanan);
+
+document.getElementById('layananSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('layananPesan');
+  const nama = document.getElementById('layananNama').value.trim();
+  if (!nama) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Nama layanan wajib diisi.'; return; }
+
+  const tombol = document.getElementById('layananSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idFoto = document.getElementById('layananFotoId').value;
+    const fileInput = document.getElementById('layananFotoFile');
+    if (fileInput.files && fileInput.files[0]) {
+      pesanEl.textContent = 'Mengunggah foto...';
+      idFoto = await unggahGambar(fileInput.files[0], token);
+    }
+
+    await kirimData({
+      action: 'simpan_layanan',
+      token: token,
+      baris: document.getElementById('layananBaris').value,
+      nama_layanan: nama,
+      urutan: document.getElementById('layananUrutan').value,
+      deskripsi: document.getElementById('layananDeskripsi').value,
+      persyaratan: document.getElementById('layananPersyaratan').value,
+      prosedur: document.getElementById('layananProsedur').value,
+      jangka_waktu: document.getElementById('layananJangkaWaktu').value,
+      biaya: document.getElementById('layananBiaya').value,
+      produk_layanan: document.getElementById('layananProdukLayanan').value,
+      foto: idFoto
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormLayanan();
+    muatAdminLayanan(token);
   } catch (err) {
     pesanEl.style.color = '#c62828';
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
