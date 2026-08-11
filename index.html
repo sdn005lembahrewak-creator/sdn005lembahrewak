@@ -327,6 +327,10 @@
   .admin-panel{display:none;}
   .admin-panel.aktif{display:block;}
   .admin-topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;}
+  .admin-progress{display:flex; align-items:center; gap:12px; margin-bottom:18px; background:var(--putih); padding:12px 16px; border-radius:12px; box-shadow:var(--bayangan);}
+  .admin-progress-track{flex:1; height:9px; background:#e6edf5; border-radius:6px; overflow:hidden;}
+  .admin-progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--biru),var(--biru-tua)); border-radius:6px; transition:width .15s ease;}
+  .admin-progress span{font-size:0.78rem; font-weight:700; color:var(--biru); min-width:38px; text-align:right; font-family:'Poppins',sans-serif;}
   .btn-keluar{background:transparent; border:1px solid #d9e2ec; color:var(--teks-lembut); padding:9px 16px; border-radius:20px; font-size:0.85rem; cursor:pointer; font-weight:700;}
   .pengaduan-kartu{background:var(--putih); border-radius:12px; padding:16px 18px; box-shadow:var(--bayangan); margin-bottom:12px;}
 
@@ -742,6 +746,11 @@
         <button class="btn-keluar" id="adminKeluarBtn">Keluar</button>
       </div>
 
+      <div class="admin-progress" id="adminProgress" style="display:none;">
+        <div class="admin-progress-track"><div class="admin-progress-fill" id="adminProgressFill"></div></div>
+        <span id="adminProgressTeks">0%</span>
+      </div>
+
       <div class="tab-bar" data-tab-group="admin">
         <button class="tab-btn aktif" data-tab="pengaduan" data-tab-group="admin">Pengaduan</button>
         <button class="tab-btn" data-tab="berita" data-tab-group="admin">Berita</button>
@@ -751,6 +760,9 @@
         <button class="tab-btn" data-tab="ekskul" data-tab-group="admin">Ekstrakurikuler</button>
         <button class="tab-btn" data-tab="prestasi" data-tab-group="admin">Prestasi</button>
         <button class="tab-btn" data-tab="layanan" data-tab-group="admin">Jenis Layanan</button>
+        <button class="tab-btn" data-tab="infolayanan" data-tab-group="admin">Info Layanan</button>
+        <button class="tab-btn" data-tab="dokumen" data-tab-group="admin">Dokumen</button>
+        <button class="tab-btn" data-tab="kontak" data-tab-group="admin">Kontak &amp; Sosial Media</button>
       </div>
 
       <div class="tab-panel aktif" data-tab-panel="pengaduan" data-tab-group="admin">
@@ -828,8 +840,8 @@
           <p style="font-size:0.78rem; color:var(--teks-lembut); margin-top:4px;">💡 Tips: pakai kategori yang mengandung kata <strong>"Poster"</strong> (misal "Poster Kegiatan") supaya foto ini otomatis muncul di strip poster bergerak di Beranda.</p>
           <label>Tanggal</label>
           <input type="date" id="galeriTanggal">
-          <label>Foto</label>
-          <input type="file" id="galeriFotoFile" accept="image/*">
+          <label>Foto (boleh pilih beberapa sekaligus — tiap foto akan jadi entri galeri tersendiri)</label>
+          <input type="file" id="galeriFotoFile" accept="image/*" multiple>
           <div class="admin-preview" id="galeriFotoPreview"></div>
           <input type="hidden" id="galeriFotoId" value="">
           <div class="admin-form-tombol">
@@ -968,6 +980,93 @@
         </div>
         <div id="adminLayananList"><div class="status-muat">Memuat daftar layanan...</div></div>
       </div>
+
+      <div class="tab-panel" data-tab-panel="infolayanan" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="infoLayananFormJudul">Tambah Kartu Info Baru</h3>
+          <input type="hidden" id="infoLayananBaris" value="">
+          <label>Masuk ke Tab Mana?</label>
+          <select id="infoLayananKategori">
+            <option value="standar">Standar Pelayanan</option>
+            <option value="maklumat">Maklumat Pelayanan</option>
+            <option value="sarana">Sarana &amp; Prasarana</option>
+            <option value="khusus">Pelayanan Khusus</option>
+          </select>
+          <label>Judul Kartu</label>
+          <input type="text" id="infoLayananJudul" placeholder="Misal: Persyaratan Layanan">
+          <label>Deskripsi</label>
+          <textarea id="infoLayananDeskripsi" rows="4" placeholder="Isi lengkap yang ditampilkan saat kartu diklik"></textarea>
+          <label>Urutan Tampil (angka, opsional)</label>
+          <input type="text" id="infoLayananUrutan" placeholder="Misal: 1">
+          <label>Foto/Poster (opsional)</label>
+          <input type="file" id="infoLayananFotoFile" accept="image/*">
+          <div class="admin-preview" id="infoLayananFotoPreview"></div>
+          <input type="hidden" id="infoLayananFotoId" value="">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="infoLayananSimpanBtn" type="button">Simpan Kartu</button>
+            <button class="btn-admin-batal" id="infoLayananBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="infoLayananPesan"></div>
+        </div>
+        <div id="adminInfoLayananList"><div class="status-muat">Memuat daftar kartu info...</div></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="dokumen" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3 id="dokumenFormJudul">Tambah Dokumen Baru</h3>
+          <input type="hidden" id="dokumenBaris" value="">
+          <label>Nama Dokumen</label>
+          <input type="text" id="dokumenNama" placeholder="Misal: SK Kepala Sekolah">
+          <label>Kategori (opsional)</label>
+          <input type="text" id="dokumenKategori" placeholder="Misal: SK, Surat Edaran, Laporan">
+          <label>Tanggal Upload</label>
+          <input type="date" id="dokumenTanggal">
+          <label>File Dokumen (PDF, Word, atau gambar)</label>
+          <input type="file" id="dokumenFile" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*">
+          <input type="hidden" id="dokumenFileId" value="">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="dokumenSimpanBtn" type="button">Simpan Dokumen</button>
+            <button class="btn-admin-batal" id="dokumenBatalBtn" type="button" style="display:none;">Batal Ubah</button>
+          </div>
+          <div class="admin-pesan" id="dokumenPesan"></div>
+        </div>
+        <div id="adminDokumenList"><div class="status-muat">Memuat daftar dokumen...</div></div>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="kontak" data-tab-group="admin">
+        <div class="admin-form-box">
+          <h3>Kontak &amp; Sosial Media Sekolah</h3>
+          <p style="font-size:0.82rem; color:var(--teks-lembut); margin-top:-6px;">Info ini otomatis tampil di halaman Kontak, footer, dan tombol WhatsApp di seluruh website.</p>
+          <label>Alamat</label>
+          <textarea id="kontakAlamat" rows="2" placeholder="Alamat lengkap sekolah"></textarea>
+          <label>Telepon</label>
+          <input type="text" id="kontakTelepon" placeholder="Misal: 0812xxxxxxxx">
+          <label>WhatsApp</label>
+          <input type="text" id="kontakWhatsapp" placeholder="Misal: 0812xxxxxxxx">
+          <label>Email</label>
+          <input type="text" id="kontakEmail" placeholder="[email protected]">
+          <label>Email Pengaduan (opsional, kalau berbeda dari email di atas)</label>
+          <input type="text" id="kontakEmailPengaduan" placeholder="[email protected]">
+          <label>Jam Operasional</label>
+          <input type="text" id="kontakJamOperasional" placeholder="Misal: Senin–Jumat, 07.30–13.00 WIB">
+          <label>Koordinat Lokasi (Latitude)</label>
+          <input type="text" id="kontakLat" placeholder="Misal: 3.0447">
+          <label>Koordinat Lokasi (Longitude)</label>
+          <input type="text" id="kontakLng" placeholder="Misal: 105.9083">
+          <label>Facebook</label>
+          <input type="text" id="kontakFacebook" placeholder="https://facebook.com/...">
+          <label>Instagram</label>
+          <input type="text" id="kontakInstagram" placeholder="https://instagram.com/...">
+          <label>YouTube</label>
+          <input type="text" id="kontakYoutube" placeholder="https://youtube.com/@...">
+          <label>TikTok</label>
+          <input type="text" id="kontakTiktok" placeholder="https://tiktok.com/@...">
+          <div class="admin-form-tombol">
+            <button class="btn-admin-simpan" id="kontakSimpanBtn" type="button">Simpan Kontak &amp; Sosial Media</button>
+          </div>
+          <div class="admin-pesan" id="kontakPesan"></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1037,7 +1136,7 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbz7_vgsEsLiGfyzwiAKJNTXdB2jp8PLgdIVhUd5fHS07G7tWYuTFaIXPJQlsIZ8Zegt/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbzcDKY72fDCso1nFDuzY5CSExicj_FusHax5WKc2n3aqAwPPTAcCxgbNdT_7Xyjjuc9/exec",
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
 };
 
@@ -1980,6 +2079,9 @@ async function bukaPanelAdmin(token) {
   muatAdminEkskul(token);
   muatAdminPrestasi(token);
   muatAdminLayanan(token);
+  muatAdminInfoLayanan(token);
+  muatAdminDokumen(token);
+  muatAdminKontak(token);
 }
 
 function renderPengaduanAdmin(list, token) {
@@ -2022,25 +2124,86 @@ function bacaFileSebagaiBase64(file) {
   });
 }
 
-async function unggahGambar(file, token) {
-  const base64 = await bacaFileSebagaiBase64(file);
-  const hasil = await kirimData({
-    action: 'upload_file',
-    token: token,
-    nama_file: file.name,
-    tipe_mime: file.type || 'image/jpeg',
-    data_base64: base64
-  });
-  return hasil.id;
+/* ---------- PROGRESS BAR UPLOAD (0-100%) ---------- */
+function tampilkanProgres() {
+  document.getElementById('adminProgress').style.display = 'flex';
+  aturProgres(0);
+}
+function aturProgres(persen) {
+  const p = Math.max(0, Math.min(100, Math.round(persen)));
+  document.getElementById('adminProgressFill').style.width = p + '%';
+  document.getElementById('adminProgressTeks').textContent = p + '%';
+}
+function sembunyikanProgres() {
+  document.getElementById('adminProgress').style.display = 'none';
 }
 
-/** Mengunggah beberapa foto sekaligus (untuk slide), hasil ID-nya digabung tanda "|". */
-async function unggahBanyakGambar(fileList, token) {
-  const daftarId = [];
-  for (const file of fileList) {
-    daftarId.push(await unggahGambar(file, token));
+/**
+ * Mengunggah satu file lewat XMLHttpRequest (bukan fetch) supaya progres
+ * unggah asli (dalam persen 0-100%) bisa dilacak dan ditampilkan di
+ * progress bar Panel Admin.
+ */
+function unggahSatuFileXhr(file, token, onProgress) {
+  return new Promise((resolve, reject) => {
+    bacaFileSebagaiBase64(file).then(base64 => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', CONFIG.API_URL, true);
+      xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable && onProgress) onProgress((e.loaded / e.total) * 100);
+      };
+      xhr.onload = function () {
+        try {
+          const json = JSON.parse(xhr.responseText);
+          if (!json.sukses) { reject(new Error(json.error || 'Gagal mengunggah file.')); return; }
+          resolve(json.data.id);
+        } catch (err) {
+          reject(new Error('Gagal membaca respons server.'));
+        }
+      };
+      xhr.onerror = function () { reject(new Error('Gagal menghubungi server. Cek koneksi internet Anda.')); };
+      xhr.send(new URLSearchParams({
+        action: 'upload_file',
+        token: token,
+        nama_file: file.name,
+        tipe_mime: file.type || 'application/octet-stream',
+        data_base64: base64
+      }));
+    }).catch(reject);
+  });
+}
+
+/** Mengunggah satu foto, menampilkan progress bar 0-100% selama prosesnya. */
+async function unggahGambar(file, token) {
+  tampilkanProgres();
+  try {
+    const id = await unggahSatuFileXhr(file, token, aturProgres);
+    aturProgres(100);
+    return id;
+  } finally {
+    setTimeout(sembunyikanProgres, 400);
   }
-  return daftarId.join('|');
+}
+
+/**
+ * Mengunggah beberapa foto sekaligus (untuk slide Ekstrakurikuler/Prestasi),
+ * hasil ID-nya digabung tanda "|". Progress bar menunjukkan progres
+ * keseluruhan (gabungan semua file), bukan cuma file yang sedang berjalan.
+ */
+async function unggahBanyakGambar(fileList, token) {
+  tampilkanProgres();
+  try {
+    const daftarId = [];
+    for (let i = 0; i < fileList.length; i++) {
+      const id = await unggahSatuFileXhr(fileList[i], token, persenFile => {
+        aturProgres(((i + persenFile / 100) / fileList.length) * 100);
+      });
+      daftarId.push(id);
+    }
+    aturProgres(100);
+    return daftarId.join('|');
+  } finally {
+    setTimeout(sembunyikanProgres, 400);
+  }
 }
 
 /* ---------- ADMIN: KELOLA BERITA ---------- */
@@ -2344,8 +2507,10 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
   const pesanEl = document.getElementById('galeriPesan');
   const fileInput = document.getElementById('galeriFotoFile');
   const idFotoTersimpan = document.getElementById('galeriFotoId').value;
+  const barisEdit = document.getElementById('galeriBaris').value;
+  const jumlahFile = fileInput.files ? fileInput.files.length : 0;
 
-  if (!fileInput.files[0] && !idFotoTersimpan) {
+  if (!jumlahFile && !idFotoTersimpan) {
     pesanEl.style.color = '#c62828';
     pesanEl.textContent = 'Pilih foto terlebih dahulu.';
     return;
@@ -2354,25 +2519,46 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
   const tombol = document.getElementById('galeriSimpanBtn');
   tombol.disabled = true;
   pesanEl.style.color = 'var(--teks-lembut)';
-  pesanEl.textContent = 'Menyimpan...';
+
+  const judulDasar = document.getElementById('galeriJudul').value;
+  const kategori = document.getElementById('galeriKategori').value;
+  const tanggal = document.getElementById('galeriTanggal').value;
+  const urutanDasar = document.getElementById('galeriUrutan').value;
 
   try {
-    let idFoto = idFotoTersimpan;
-    if (fileInput.files && fileInput.files[0]) {
-      pesanEl.textContent = 'Mengunggah foto...';
-      idFoto = await unggahGambar(fileInput.files[0], token);
+    if (!barisEdit && jumlahFile > 1) {
+      // Tambah banyak foto sekaligus — tiap foto otomatis jadi entri galeri tersendiri
+      for (let i = 0; i < jumlahFile; i++) {
+        pesanEl.textContent = 'Mengunggah foto ' + (i + 1) + ' dari ' + jumlahFile + '...';
+        const idFotoBaru = await unggahGambar(fileInput.files[i], token);
+        await kirimData({
+          action: 'simpan_galeri',
+          token: token,
+          baris: '',
+          judul: judulDasar ? judulDasar + ' (' + (i + 1) + ')' : '',
+          urutan: urutanDasar,
+          kategori: kategori,
+          tanggal: tanggal,
+          url_foto: idFotoBaru
+        });
+      }
+    } else {
+      let idFoto = idFotoTersimpan;
+      if (jumlahFile) {
+        pesanEl.textContent = 'Mengunggah foto...';
+        idFoto = await unggahGambar(fileInput.files[0], token);
+      }
+      await kirimData({
+        action: 'simpan_galeri',
+        token: token,
+        baris: barisEdit,
+        judul: judulDasar,
+        urutan: urutanDasar,
+        kategori: kategori,
+        tanggal: tanggal,
+        url_foto: idFoto
+      });
     }
-
-    await kirimData({
-      action: 'simpan_galeri',
-      token: token,
-      baris: document.getElementById('galeriBaris').value,
-      judul: document.getElementById('galeriJudul').value,
-      urutan: document.getElementById('galeriUrutan').value,
-      kategori: document.getElementById('galeriKategori').value,
-      tanggal: document.getElementById('galeriTanggal').value,
-      url_foto: idFoto
-    });
 
     pesanEl.style.color = '#2e7d32';
     pesanEl.textContent = 'Berhasil disimpan.';
@@ -2893,6 +3079,296 @@ document.getElementById('layananSimpanBtn').addEventListener('click', async () =
     pesanEl.textContent = 'Berhasil disimpan.';
     resetFormLayanan();
     muatAdminLayanan(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA INFO LAYANAN (Standar/Maklumat/Sarana/Khusus) ---------- */
+const labelKategoriInfo = { standar: 'Standar Pelayanan', maklumat: 'Maklumat Pelayanan', sarana: 'Sarana & Prasarana', khusus: 'Pelayanan Khusus' };
+
+async function muatAdminInfoLayanan(token) {
+  try {
+    const list = await ambilData('info_layanan_admin', { token: token });
+    renderAdminInfoLayananList(list, token);
+  } catch (err) {
+    document.getElementById('adminInfoLayananList').innerHTML = '<div class="status-muat">Gagal memuat daftar kartu info.</div>';
+  }
+}
+
+function renderAdminInfoLayananList(list, token) {
+  const el = document.getElementById('adminInfoLayananList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada kartu info.</div>'; return; }
+
+  el.innerHTML = list.map(item => {
+    const thumb = item.gambar_url
+      ? '<img class="admin-item-thumb" src="' + escapeHtml(item.gambar_url) + '" alt="" onerror="this.remove()">'
+      : '<div class="admin-item-thumb"></div>';
+    return '<div class="admin-item-kartu"><div class="admin-item-utama">' + thumb +
+      '<div><h4>' + escapeHtml(item.judul || '(tanpa judul)') + '</h4>' +
+      '<span class="meta">' + escapeHtml(labelKategoriInfo[item.kategori] || item.kategori || '') + '</span></div></div>' +
+      '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + item.baris + '" type="button">Edit</button>' +
+      '<button class="btn-hapus" data-baris="' + item.baris + '" type="button">Hapus</button></div></div>';
+  }).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormInfoLayanan(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus kartu info ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_info_layanan', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminInfoLayanan(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormInfoLayanan(item) {
+  document.getElementById('infoLayananFormJudul').textContent = 'Ubah Kartu Info';
+  document.getElementById('infoLayananBaris').value = item.baris;
+  document.getElementById('infoLayananKategori').value = item.kategori || 'standar';
+  document.getElementById('infoLayananJudul').value = item.judul || '';
+  document.getElementById('infoLayananDeskripsi').value = item.deskripsi || '';
+  document.getElementById('infoLayananUrutan').value = item.urutan || '';
+  document.getElementById('infoLayananFotoId').value = item.foto || '';
+  document.getElementById('infoLayananFotoPreview').innerHTML = item.gambar_url ? '<img src="' + escapeHtml(item.gambar_url) + '">' : '';
+  document.getElementById('infoLayananBatalBtn').style.display = 'inline-block';
+  document.getElementById('infoLayananJudul').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormInfoLayanan() {
+  document.getElementById('infoLayananFormJudul').textContent = 'Tambah Kartu Info Baru';
+  document.getElementById('infoLayananBaris').value = '';
+  document.getElementById('infoLayananKategori').value = 'standar';
+  document.getElementById('infoLayananJudul').value = '';
+  document.getElementById('infoLayananDeskripsi').value = '';
+  document.getElementById('infoLayananUrutan').value = '';
+  document.getElementById('infoLayananFotoId').value = '';
+  document.getElementById('infoLayananFotoFile').value = '';
+  document.getElementById('infoLayananFotoPreview').innerHTML = '';
+  document.getElementById('infoLayananBatalBtn').style.display = 'none';
+  document.getElementById('infoLayananPesan').textContent = '';
+}
+document.getElementById('infoLayananBatalBtn').addEventListener('click', resetFormInfoLayanan);
+
+document.getElementById('infoLayananSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('infoLayananPesan');
+  const judul = document.getElementById('infoLayananJudul').value.trim();
+  if (!judul) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Judul kartu wajib diisi.'; return; }
+
+  const tombol = document.getElementById('infoLayananSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idFoto = document.getElementById('infoLayananFotoId').value;
+    const fileInput = document.getElementById('infoLayananFotoFile');
+    if (fileInput.files && fileInput.files[0]) {
+      pesanEl.textContent = 'Mengunggah foto...';
+      idFoto = await unggahGambar(fileInput.files[0], token);
+    }
+
+    await kirimData({
+      action: 'simpan_info_layanan',
+      token: token,
+      baris: document.getElementById('infoLayananBaris').value,
+      kategori: document.getElementById('infoLayananKategori').value,
+      judul: judul,
+      deskripsi: document.getElementById('infoLayananDeskripsi').value,
+      urutan: document.getElementById('infoLayananUrutan').value,
+      foto: idFoto
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormInfoLayanan();
+    muatAdminInfoLayanan(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA DOKUMEN ---------- */
+async function muatAdminDokumen(token) {
+  try {
+    const list = await ambilData('dokumen_admin', { token: token });
+    renderAdminDokumenList(list, token);
+  } catch (err) {
+    document.getElementById('adminDokumenList').innerHTML = '<div class="status-muat">Gagal memuat daftar dokumen.</div>';
+  }
+}
+
+function renderAdminDokumenList(list, token) {
+  const el = document.getElementById('adminDokumenList');
+  if (!list.length) { el.innerHTML = '<div class="status-muat">Belum ada dokumen.</div>'; return; }
+
+  el.innerHTML = list.map(d =>
+    '<div class="admin-item-kartu"><div class="admin-item-utama">' +
+    '<div class="dok-ikon" style="flex-shrink:0;">' + (d.kategori ? String(d.kategori)[0].toUpperCase() : 'F') + '</div>' +
+    '<div><h4>' + escapeHtml(d.nama_dokumen || '(tanpa nama)') + '</h4>' +
+    '<span class="meta">' + escapeHtml(d.kategori || '') + (d.tanggal_upload ? ' · ' + formatTanggal(d.tanggal_upload) : '') + '</span></div></div>' +
+    '<div class="admin-item-aksi"><button class="btn-edit" data-baris="' + d.baris + '" type="button">Edit</button>' +
+    '<button class="btn-hapus" data-baris="' + d.baris + '" type="button">Hapus</button></div></div>'
+  ).join('');
+
+  el.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = list.find(x => x.baris === parseInt(btn.dataset.baris, 10));
+      if (item) isiFormDokumen(item);
+    });
+  });
+  el.querySelectorAll('.btn-hapus').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Hapus dokumen ini? Tindakan tidak bisa dibatalkan.')) return;
+      const tokenAktif = sessionStorage.getItem('token_admin_sekolah');
+      try {
+        await kirimData({ action: 'hapus_dokumen', token: tokenAktif, baris: btn.dataset.baris });
+        muatAdminDokumen(tokenAktif);
+      } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+      }
+    });
+  });
+}
+
+function isiFormDokumen(item) {
+  document.getElementById('dokumenFormJudul').textContent = 'Ubah Dokumen';
+  document.getElementById('dokumenBaris').value = item.baris;
+  document.getElementById('dokumenNama').value = item.nama_dokumen || '';
+  document.getElementById('dokumenKategori').value = item.kategori || '';
+  document.getElementById('dokumenTanggal').value = item.tanggal_upload || '';
+  document.getElementById('dokumenFileId').value = item.url_file || '';
+  document.getElementById('dokumenBatalBtn').style.display = 'inline-block';
+  document.getElementById('dokumenNama').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFormDokumen() {
+  document.getElementById('dokumenFormJudul').textContent = 'Tambah Dokumen Baru';
+  document.getElementById('dokumenBaris').value = '';
+  document.getElementById('dokumenNama').value = '';
+  document.getElementById('dokumenKategori').value = '';
+  document.getElementById('dokumenTanggal').value = '';
+  document.getElementById('dokumenFileId').value = '';
+  document.getElementById('dokumenFile').value = '';
+  document.getElementById('dokumenBatalBtn').style.display = 'none';
+  document.getElementById('dokumenPesan').textContent = '';
+}
+document.getElementById('dokumenBatalBtn').addEventListener('click', resetFormDokumen);
+
+document.getElementById('dokumenSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('dokumenPesan');
+  const nama = document.getElementById('dokumenNama').value.trim();
+  if (!nama) { pesanEl.style.color = '#c62828'; pesanEl.textContent = 'Nama dokumen wajib diisi.'; return; }
+
+  const fileInput = document.getElementById('dokumenFile');
+  const idFileTersimpan = document.getElementById('dokumenFileId').value;
+  if (!fileInput.files[0] && !idFileTersimpan) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Pilih file dokumen terlebih dahulu.';
+    return;
+  }
+
+  const tombol = document.getElementById('dokumenSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    let idFile = idFileTersimpan;
+    if (fileInput.files && fileInput.files[0]) {
+      pesanEl.textContent = 'Mengunggah file...';
+      idFile = await unggahGambar(fileInput.files[0], token);
+    }
+
+    await kirimData({
+      action: 'simpan_dokumen',
+      token: token,
+      baris: document.getElementById('dokumenBaris').value,
+      nama_dokumen: nama,
+      kategori: document.getElementById('dokumenKategori').value,
+      tanggal_upload: document.getElementById('dokumenTanggal').value,
+      url_file: idFile
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
+    resetFormDokumen();
+    muatAdminDokumen(token);
+  } catch (err) {
+    pesanEl.style.color = '#c62828';
+    pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+/* ---------- ADMIN: KELOLA KONTAK & SOSIAL MEDIA ---------- */
+async function muatAdminKontak(token) {
+  try {
+    const p = await ambilData('profil_admin', { token: token });
+    document.getElementById('kontakAlamat').value = p.alamat || '';
+    document.getElementById('kontakTelepon').value = p.telepon || '';
+    document.getElementById('kontakWhatsapp').value = p.whatsapp || '';
+    document.getElementById('kontakEmail').value = p.email || '';
+    document.getElementById('kontakEmailPengaduan').value = p.email_pengaduan || '';
+    document.getElementById('kontakJamOperasional').value = p.jam_operasional || '';
+    document.getElementById('kontakLat').value = p.lat || '';
+    document.getElementById('kontakLng').value = p.lng || '';
+    document.getElementById('kontakFacebook').value = p.facebook || '';
+    document.getElementById('kontakInstagram').value = p.instagram || '';
+    document.getElementById('kontakYoutube').value = p.youtube || '';
+    document.getElementById('kontakTiktok').value = p.tiktok || '';
+  } catch (err) {
+    document.getElementById('kontakPesan').style.color = '#c62828';
+    document.getElementById('kontakPesan').textContent = 'Gagal memuat data kontak.';
+  }
+}
+
+document.getElementById('kontakSimpanBtn').addEventListener('click', async () => {
+  const token = sessionStorage.getItem('token_admin_sekolah');
+  const pesanEl = document.getElementById('kontakPesan');
+  const tombol = document.getElementById('kontakSimpanBtn');
+  tombol.disabled = true;
+  pesanEl.style.color = 'var(--teks-lembut)';
+  pesanEl.textContent = 'Menyimpan...';
+
+  try {
+    await kirimData({
+      action: 'simpan_profil',
+      token: token,
+      alamat: document.getElementById('kontakAlamat').value,
+      telepon: document.getElementById('kontakTelepon').value,
+      whatsapp: document.getElementById('kontakWhatsapp').value,
+      email: document.getElementById('kontakEmail').value,
+      email_pengaduan: document.getElementById('kontakEmailPengaduan').value,
+      jam_operasional: document.getElementById('kontakJamOperasional').value,
+      lat: document.getElementById('kontakLat').value,
+      lng: document.getElementById('kontakLng').value,
+      facebook: document.getElementById('kontakFacebook').value,
+      instagram: document.getElementById('kontakInstagram').value,
+      youtube: document.getElementById('kontakYoutube').value,
+      tiktok: document.getElementById('kontakTiktok').value
+    });
+
+    pesanEl.style.color = '#2e7d32';
+    pesanEl.textContent = 'Berhasil disimpan.';
   } catch (err) {
     pesanEl.style.color = '#c62828';
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
