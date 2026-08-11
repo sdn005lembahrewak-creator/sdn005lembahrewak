@@ -1136,8 +1136,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwRGo3YLhTTgX8uIRMX5jwRWNS2VRPUwC_s4C0LycCla35cIvdPWsNE8EHJPaI62Bfk/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -2139,36 +2139,40 @@ function sembunyikanProgres() {
 }
 
 /**
- * Mengunggah satu file lewat XMLHttpRequest (bukan fetch) supaya progres
- * unggah asli (dalam persen 0-100%) bisa dilacak dan ditampilkan di
- * progress bar Panel Admin.
+ * Mengunggah satu file lewat fetch (kirimData) — metode yang sudah
+ * terbukti stabil dipakai di seluruh website ini. Karena fetch tidak bisa
+ * melaporkan progres unggah byte-per-byte secara langsung, progress bar
+ * digerakkan dengan animasi yang realistis (naik bertahap sampai 90%
+ * sambil menunggu, lalu langsung ke 100% begitu server selesai merespons).
  */
-function unggahSatuFileXhr(file, token, onProgress) {
+function unggahSatuFileDenganProgres(file, token, onProgress) {
   return new Promise((resolve, reject) => {
-    bacaFileSebagaiBase64(file).then(base64 => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', CONFIG.API_URL, true);
-      xhr.upload.onprogress = function (e) {
-        if (e.lengthComputable && onProgress) onProgress((e.loaded / e.total) * 100);
-      };
-      xhr.onload = function () {
-        try {
-          const json = JSON.parse(xhr.responseText);
-          if (!json.sukses) { reject(new Error(json.error || 'Gagal mengunggah file.')); return; }
-          resolve(json.data.id);
-        } catch (err) {
-          reject(new Error('Gagal membaca respons server.'));
-        }
-      };
-      xhr.onerror = function () { reject(new Error('Gagal menghubungi server. Cek koneksi internet Anda.')); };
-      xhr.send(new URLSearchParams({
+    let progresSaatIni = 0;
+    const timer = setInterval(() => {
+      // Naik makin pelan mendekati 90%, supaya terasa alami dan tidak
+      // "selesai" sebelum unggahan sungguhan tuntas.
+      const sisa = 90 - progresSaatIni;
+      progresSaatIni += Math.max(sisa * 0.12, 0.4);
+      if (onProgress) onProgress(Math.min(progresSaatIni, 90));
+    }, 150);
+
+    bacaFileSebagaiBase64(file)
+      .then(base64 => kirimData({
         action: 'upload_file',
         token: token,
         nama_file: file.name,
         tipe_mime: file.type || 'application/octet-stream',
         data_base64: base64
-      }));
-    }).catch(reject);
+      }))
+      .then(hasil => {
+        clearInterval(timer);
+        if (onProgress) onProgress(100);
+        resolve(hasil.id);
+      })
+      .catch(err => {
+        clearInterval(timer);
+        reject(err);
+      });
   });
 }
 
@@ -2176,8 +2180,7 @@ function unggahSatuFileXhr(file, token, onProgress) {
 async function unggahGambar(file, token) {
   tampilkanProgres();
   try {
-    const id = await unggahSatuFileXhr(file, token, aturProgres);
-    aturProgres(100);
+    const id = await unggahSatuFileDenganProgres(file, token, aturProgres);
     return id;
   } finally {
     setTimeout(sembunyikanProgres, 400);
@@ -2185,16 +2188,16 @@ async function unggahGambar(file, token) {
 }
 
 /**
- * Mengunggah beberapa foto sekaligus (untuk slide Ekstrakurikuler/Prestasi),
- * hasil ID-nya digabung tanda "|". Progress bar menunjukkan progres
- * keseluruhan (gabungan semua file), bukan cuma file yang sedang berjalan.
+ * Mengunggah beberapa foto sekaligus (untuk slide Ekstrakurikuler/Prestasi
+ * atau banyak foto Galeri), hasil ID-nya digabung tanda "|". Progress bar
+ * menunjukkan progres keseluruhan (gabungan semua file).
  */
 async function unggahBanyakGambar(fileList, token) {
   tampilkanProgres();
   try {
     const daftarId = [];
     for (let i = 0; i < fileList.length; i++) {
-      const id = await unggahSatuFileXhr(fileList[i], token, persenFile => {
+      const id = await unggahSatuFileDenganProgres(fileList[i], token, persenFile => {
         aturProgres(((i + persenFile / 100) / fileList.length) * 100);
       });
       daftarId.push(id);
