@@ -1136,8 +1136,8 @@
       Google Form miliknya sendiri.
    ============================================================= */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbzcDKY72fDCso1nFDuzY5CSExicj_FusHax5WKc2n3aqAwPPTAcCxgbNdT_7Xyjjuc9/exec",
-  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLSdM5GaI2IsNSu9LPDJb0EWEzdxVQOiO88vH10JYerIB73wDtA/viewform?embedded=true"
+  API_URL: "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_ANDA/exec",
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/GANTI_DENGAN_ID_FORM_ANDA/viewform?embedded=true"
 };
 
 document.getElementById('tahunSekarang').textContent = new Date().getFullYear();
@@ -2139,18 +2139,35 @@ function sembunyikanProgres() {
 }
 
 /**
+ * Menjalankan sebuah proses (Promise) sambil menaikkan progress bar secara
+ * bertahap menuju batasAtas — dipakai untuk tahap-tahap yang tidak punya
+ * ukuran progres asli (seperti menyimpan data ke Google Sheets), supaya
+ * progress bar tetap terlihat "hidup" bergerak selama prosesnya berjalan,
+ * bukan diam/kosong tanpa indikasi apa pun.
+ */
+function majukanProgresSelama(janji, batasAtas) {
+  return new Promise((resolve, reject) => {
+    let sekarang = parseFloat(document.getElementById('adminProgressFill').style.width) || 0;
+    const timer = setInterval(() => {
+      const sisa = batasAtas - sekarang;
+      sekarang += Math.max(sisa * 0.15, 0.3);
+      aturProgres(Math.min(sekarang, batasAtas));
+    }, 150);
+    janji.then(hasil => { clearInterval(timer); resolve(hasil); })
+         .catch(err => { clearInterval(timer); reject(err); });
+  });
+}
+
+/**
  * Mengunggah satu file lewat fetch (kirimData) — metode yang sudah
- * terbukti stabil dipakai di seluruh website ini. Karena fetch tidak bisa
- * melaporkan progres unggah byte-per-byte secara langsung, progress bar
- * digerakkan dengan animasi yang realistis (naik bertahap sampai 90%
- * sambil menunggu, lalu langsung ke 100% begitu server selesai merespons).
+ * terbukti stabil dipakai di seluruh website ini. Progres dianimasikan
+ * bertahap sampai 90% (menyisakan ruang untuk tahap "menyimpan data"
+ * setelahnya), meneruskan dari posisi progress bar yang sedang berjalan.
  */
 function unggahSatuFileDenganProgres(file, token, onProgress) {
   return new Promise((resolve, reject) => {
-    let progresSaatIni = 0;
+    let progresSaatIni = parseFloat(document.getElementById('adminProgressFill').style.width) || 0;
     const timer = setInterval(() => {
-      // Naik makin pelan mendekati 90%, supaya terasa alami dan tidak
-      // "selesai" sebelum unggahan sungguhan tuntas.
       const sisa = 90 - progresSaatIni;
       progresSaatIni += Math.max(sisa * 0.12, 0.4);
       if (onProgress) onProgress(Math.min(progresSaatIni, 90));
@@ -2166,7 +2183,6 @@ function unggahSatuFileDenganProgres(file, token, onProgress) {
       }))
       .then(hasil => {
         clearInterval(timer);
-        if (onProgress) onProgress(100);
         resolve(hasil.id);
       })
       .catch(err => {
@@ -2176,37 +2192,31 @@ function unggahSatuFileDenganProgres(file, token, onProgress) {
   });
 }
 
-/** Mengunggah satu foto, menampilkan progress bar 0-100% selama prosesnya. */
+/**
+ * Mengunggah satu foto. TIDAK lagi menampilkan/menyembunyikan progress bar
+ * sendiri — itu jadi tanggung jawab handler tombol Simpan yang memanggilnya,
+ * supaya progress bar tetap menyala utuh dari awal klik sampai proses
+ * simpan data selesai (bukan cuma selama upload foto saja).
+ */
 async function unggahGambar(file, token) {
-  tampilkanProgres();
-  try {
-    const id = await unggahSatuFileDenganProgres(file, token, aturProgres);
-    return id;
-  } finally {
-    setTimeout(sembunyikanProgres, 400);
-  }
+  return unggahSatuFileDenganProgres(file, token, aturProgres);
 }
 
 /**
  * Mengunggah beberapa foto sekaligus (untuk slide Ekstrakurikuler/Prestasi
  * atau banyak foto Galeri), hasil ID-nya digabung tanda "|". Progress bar
- * menunjukkan progres keseluruhan (gabungan semua file).
+ * menunjukkan progres keseluruhan (gabungan semua file), dibatasi sampai
+ * 90% (sisa 10% untuk tahap penyimpanan data).
  */
 async function unggahBanyakGambar(fileList, token) {
-  tampilkanProgres();
-  try {
-    const daftarId = [];
-    for (let i = 0; i < fileList.length; i++) {
-      const id = await unggahSatuFileDenganProgres(fileList[i], token, persenFile => {
-        aturProgres(((i + persenFile / 100) / fileList.length) * 100);
-      });
-      daftarId.push(id);
-    }
-    aturProgres(100);
-    return daftarId.join('|');
-  } finally {
-    setTimeout(sembunyikanProgres, 400);
+  const daftarId = [];
+  for (let i = 0; i < fileList.length; i++) {
+    const id = await unggahSatuFileDenganProgres(fileList[i], token, persenFile => {
+      aturProgres(((i + persenFile / 100) / fileList.length) * 90);
+    });
+    daftarId.push(id);
   }
+  return daftarId.join('|');
 }
 
 /* ---------- ADMIN: KELOLA BERITA ---------- */
@@ -2290,6 +2300,7 @@ document.getElementById('beritaSimpanBtn').addEventListener('click', async () =>
 
   const tombol = document.getElementById('beritaSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
@@ -2301,7 +2312,8 @@ document.getElementById('beritaSimpanBtn').addEventListener('click', async () =>
       idGambar = await unggahGambar(fileInput.files[0], token);
     }
 
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_berita',
       token: token,
       baris: document.getElementById('beritaBaris').value,
@@ -2312,10 +2324,11 @@ document.getElementById('beritaSimpanBtn').addEventListener('click', async () =>
       gambar: idGambar,
       sumber_url: document.getElementById('beritaSumberUrl').value,
       status: document.getElementById('beritaStatus').value
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormBerita();
     muatAdminBerita(token);
   } catch (err) {
@@ -2323,6 +2336,7 @@ document.getElementById('beritaSimpanBtn').addEventListener('click', async () =>
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -2398,11 +2412,13 @@ document.getElementById('pengumumanSimpanBtn').addEventListener('click', async (
 
   const tombol = document.getElementById('pengumumanSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
   try {
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_pengumuman',
       token: token,
       baris: document.getElementById('pengumumanBaris').value,
@@ -2410,10 +2426,11 @@ document.getElementById('pengumumanSimpanBtn').addEventListener('click', async (
       tanggal: document.getElementById('pengumumanTanggal').value,
       isi: document.getElementById('pengumumanIsi').value,
       penting: document.getElementById('pengumumanPenting').value
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormPengumuman();
     muatAdminPengumuman(token);
   } catch (err) {
@@ -2421,6 +2438,7 @@ document.getElementById('pengumumanSimpanBtn').addEventListener('click', async (
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -2521,6 +2539,7 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
 
   const tombol = document.getElementById('galeriSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
 
   const judulDasar = document.getElementById('galeriJudul').value;
@@ -2534,7 +2553,8 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
       for (let i = 0; i < jumlahFile; i++) {
         pesanEl.textContent = 'Mengunggah foto ' + (i + 1) + ' dari ' + jumlahFile + '...';
         const idFotoBaru = await unggahGambar(fileInput.files[i], token);
-        await kirimData({
+        aturProgres(((i + 1) / jumlahFile) * 90);
+        await majukanProgresSelama(kirimData({
           action: 'simpan_galeri',
           token: token,
           baris: '',
@@ -2543,7 +2563,7 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
           kategori: kategori,
           tanggal: tanggal,
           url_foto: idFotoBaru
-        });
+        }), 90 + ((i + 1) / jumlahFile) * 8);
       }
     } else {
       let idFoto = idFotoTersimpan;
@@ -2551,7 +2571,8 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
         pesanEl.textContent = 'Mengunggah foto...';
         idFoto = await unggahGambar(fileInput.files[0], token);
       }
-      await kirimData({
+      pesanEl.textContent = 'Menyimpan data...';
+      await majukanProgresSelama(kirimData({
         action: 'simpan_galeri',
         token: token,
         baris: barisEdit,
@@ -2560,11 +2581,12 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
         kategori: kategori,
         tanggal: tanggal,
         url_foto: idFoto
-      });
+      }), 98);
     }
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormGaleri();
     muatAdminGaleri(token);
   } catch (err) {
@@ -2572,6 +2594,7 @@ document.getElementById('galeriSimpanBtn').addEventListener('click', async () =>
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -2660,6 +2683,7 @@ document.getElementById('guruSimpanBtn').addEventListener('click', async () => {
 
   const tombol = document.getElementById('guruSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
@@ -2671,7 +2695,8 @@ document.getElementById('guruSimpanBtn').addEventListener('click', async () => {
       idFoto = await unggahGambar(fileInput.files[0], token);
     }
 
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_guru',
       token: token,
       baris: document.getElementById('guruBaris').value,
@@ -2682,10 +2707,11 @@ document.getElementById('guruSimpanBtn').addEventListener('click', async () => {
       mapel: document.getElementById('guruMapel').value,
       pendidikan: document.getElementById('guruPendidikan').value,
       foto: idFoto
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormGuru();
     muatAdminGuru(token);
   } catch (err) {
@@ -2693,6 +2719,7 @@ document.getElementById('guruSimpanBtn').addEventListener('click', async () => {
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -2785,6 +2812,7 @@ document.getElementById('ekskulSimpanBtn').addEventListener('click', async () =>
 
   const tombol = document.getElementById('ekskulSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
@@ -2803,7 +2831,8 @@ document.getElementById('ekskulSimpanBtn').addEventListener('click', async () =>
       idGaleri = await unggahBanyakGambar(Array.from(fileGaleri.files), token);
     }
 
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_ekstrakurikuler',
       token: token,
       baris: document.getElementById('ekskulBaris').value,
@@ -2814,10 +2843,11 @@ document.getElementById('ekskulSimpanBtn').addEventListener('click', async () =>
       jadwal: document.getElementById('ekskulJadwal').value,
       foto: idFoto,
       galeri_foto: idGaleri
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormEkskul();
     muatAdminEkskul(token);
   } catch (err) {
@@ -2825,6 +2855,7 @@ document.getElementById('ekskulSimpanBtn').addEventListener('click', async () =>
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -2919,6 +2950,7 @@ document.getElementById('prestasiSimpanBtn').addEventListener('click', async () 
 
   const tombol = document.getElementById('prestasiSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
@@ -2937,7 +2969,8 @@ document.getElementById('prestasiSimpanBtn').addEventListener('click', async () 
       idGaleri = await unggahBanyakGambar(Array.from(fileGaleri.files), token);
     }
 
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_prestasi',
       token: token,
       baris: document.getElementById('prestasiBaris').value,
@@ -2949,10 +2982,11 @@ document.getElementById('prestasiSimpanBtn').addEventListener('click', async () 
       keterangan: document.getElementById('prestasiKeterangan').value,
       foto: idFoto,
       galeri_foto: idGaleri
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormPrestasi();
     muatAdminPrestasi(token);
   } catch (err) {
@@ -2960,6 +2994,7 @@ document.getElementById('prestasiSimpanBtn').addEventListener('click', async () 
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -3052,6 +3087,7 @@ document.getElementById('layananSimpanBtn').addEventListener('click', async () =
 
   const tombol = document.getElementById('layananSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
@@ -3063,7 +3099,8 @@ document.getElementById('layananSimpanBtn').addEventListener('click', async () =
       idFoto = await unggahGambar(fileInput.files[0], token);
     }
 
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_layanan',
       token: token,
       baris: document.getElementById('layananBaris').value,
@@ -3076,10 +3113,11 @@ document.getElementById('layananSimpanBtn').addEventListener('click', async () =
       biaya: document.getElementById('layananBiaya').value,
       produk_layanan: document.getElementById('layananProdukLayanan').value,
       foto: idFoto
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormLayanan();
     muatAdminLayanan(token);
   } catch (err) {
@@ -3087,6 +3125,7 @@ document.getElementById('layananSimpanBtn').addEventListener('click', async () =
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -3173,6 +3212,7 @@ document.getElementById('infoLayananSimpanBtn').addEventListener('click', async 
 
   const tombol = document.getElementById('infoLayananSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
@@ -3184,7 +3224,8 @@ document.getElementById('infoLayananSimpanBtn').addEventListener('click', async 
       idFoto = await unggahGambar(fileInput.files[0], token);
     }
 
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_info_layanan',
       token: token,
       baris: document.getElementById('infoLayananBaris').value,
@@ -3193,10 +3234,11 @@ document.getElementById('infoLayananSimpanBtn').addEventListener('click', async 
       deskripsi: document.getElementById('infoLayananDeskripsi').value,
       urutan: document.getElementById('infoLayananUrutan').value,
       foto: idFoto
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormInfoLayanan();
     muatAdminInfoLayanan(token);
   } catch (err) {
@@ -3204,6 +3246,7 @@ document.getElementById('infoLayananSimpanBtn').addEventListener('click', async 
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -3290,6 +3333,7 @@ document.getElementById('dokumenSimpanBtn').addEventListener('click', async () =
 
   const tombol = document.getElementById('dokumenSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
@@ -3300,7 +3344,8 @@ document.getElementById('dokumenSimpanBtn').addEventListener('click', async () =
       idFile = await unggahGambar(fileInput.files[0], token);
     }
 
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_dokumen',
       token: token,
       baris: document.getElementById('dokumenBaris').value,
@@ -3308,10 +3353,11 @@ document.getElementById('dokumenSimpanBtn').addEventListener('click', async () =
       kategori: document.getElementById('dokumenKategori').value,
       tanggal_upload: document.getElementById('dokumenTanggal').value,
       url_file: idFile
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Konten berhasil diunggah.';
     resetFormDokumen();
     muatAdminDokumen(token);
   } catch (err) {
@@ -3319,6 +3365,7 @@ document.getElementById('dokumenSimpanBtn').addEventListener('click', async () =
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
@@ -3349,11 +3396,13 @@ document.getElementById('kontakSimpanBtn').addEventListener('click', async () =>
   const pesanEl = document.getElementById('kontakPesan');
   const tombol = document.getElementById('kontakSimpanBtn');
   tombol.disabled = true;
+  tampilkanProgres();
   pesanEl.style.color = 'var(--teks-lembut)';
   pesanEl.textContent = 'Menyimpan...';
 
   try {
-    await kirimData({
+    pesanEl.textContent = 'Menyimpan data...';
+    await majukanProgresSelama(kirimData({
       action: 'simpan_profil',
       token: token,
       alamat: document.getElementById('kontakAlamat').value,
@@ -3368,15 +3417,17 @@ document.getElementById('kontakSimpanBtn').addEventListener('click', async () =>
       instagram: document.getElementById('kontakInstagram').value,
       youtube: document.getElementById('kontakYoutube').value,
       tiktok: document.getElementById('kontakTiktok').value
-    });
+    }), 98);
 
+    aturProgres(100);
     pesanEl.style.color = '#2e7d32';
-    pesanEl.textContent = 'Berhasil disimpan.';
+    pesanEl.textContent = '✅ Selesai! Data kontak & sosial media berhasil disimpan.';
   } catch (err) {
     pesanEl.style.color = '#c62828';
     pesanEl.textContent = 'Gagal menyimpan: ' + err.message;
   } finally {
     tombol.disabled = false;
+    setTimeout(sembunyikanProgres, 1200);
   }
 });
 
